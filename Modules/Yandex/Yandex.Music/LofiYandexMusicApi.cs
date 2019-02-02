@@ -18,7 +18,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Yandex.Music
 {
-  public class LofiYandexMusicApi
+  public class LofiYandexMusicApi : YandexApi
   {
     private string _login;
     private string _password;
@@ -67,9 +67,12 @@ namespace Yandex.Music
       return result;
     }
 
-    public List<Track> GetListFavorites()
+    public List<Track> GetListFavorites(string login = null)
     {
-      var request = GetRequest(new Uri($"https://music.yandex.ru/handlers/library.jsx?owner={_login}&filter=tracks&likeFilter=favorite&sort=&dir=&lang=ru&external-domain=music.yandex.ru&overembed=false&ncrnd=0.7506943983987266"));
+      if (login == null)
+        login = _login;
+      
+      var request = GetRequest(new Uri($"https://music.yandex.ru/handlers/library.jsx?owner={login}&filter=tracks&likeFilter=favorite&sort=&dir=&lang=ru&external-domain=music.yandex.ru&overembed=false&ncrnd=0.7506943983987266"));
       var tracks = new List<Track>();
       
       using (var response = (HttpWebResponse) request.GetResponse())
@@ -77,45 +80,7 @@ namespace Yandex.Music
         var data = GetDataFromResponse(response);
         var jTracks = (JArray) data["tracks"];
 
-        for (var i = 0; i < jTracks.Count; i++)
-        {
-          var jTrack = jTracks[i];
-          var track = new Track
-          {
-            Id = jTrack["id"].ToObject<string>(),
-            RealId = jTrack["realId"].ToObject<string>(),
-            Title = jTrack["title"].ToObject<string>(),
-            Major = new Major
-            {
-              Id = jTrack["major"]["id"].ToObject<string>(),
-              Name = jTrack["major"]["name"].ToObject<string>()
-            },
-            Available = jTrack["available"].ToObject<bool>(),
-            AvailableForPremiumUsers = jTrack["availableForPremiumUsers"].ToObject<bool>(),
-            
-            DurationMS = jTrack["durationMs"].ToObject<int>(),
-            StorageDir = jTrack["storageDir"].ToObject<string>(),
-            FileSize = jTrack["fileSize"].ToObject<int>(),
-            Artists = jTrack["artists"].ToObject<JArray>()
-              .Select(jArtist => new Artist
-              {
-                Id = jArtist["id"].ToObject<string>(),
-                Name = jArtist["name"].ToObject<string>(),
-                Various = jArtist["various"].ToObject<bool>(),
-                Composer = jArtist["composer"].ToObject<bool>(),
-                Cover = new Cover
-                {
-                  Type = jArtist["cover"]["type"].ToObject<string>(),
-                  Prefix = jArtist["cover"]["prefix"].ToObject<string>(),
-                  Url = jArtist["cover"]["uri"].ToObject<string>()
-                },
-                Genres = new string[] {}
-              }).ToList(),
-            OgImage = jTrack["ogImage"].ToObject<string>()
-          };
-
-          tracks.Add(track);
-        }
+        tracks = Track.FromJsonArray(jTracks);
 
         _cookies.Add(response.Cookies);
       }
@@ -123,23 +88,35 @@ namespace Yandex.Music
       return tracks;
     }
 
-    public void DownloadTrack(Track track)
+    public bool ExtractTrackToFile(Track track, string folder)
     {
-      var trackDownloadUrl = GetURLDownloadTrack(track);
-      var isNetworing = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
-      
-      using (var client = new WebClient())
+      try
       {
-        client.DownloadProgressChanged += (sender, args) =>
+        var trackDownloadUrl = GetURLDownloadTrack(track);
+        var isNetworing = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
+
+        using (var client = new WebClient())
         {
-          Console.WriteLine($"received: {args.BytesReceived} from: {args.TotalBytesToReceive} progress: {args.ProgressPercentage} state: {args.UserState}");
-        };
-        client.DownloadFile(trackDownloadUrl, $"data/{track.Title}.mp3");
+          client.DownloadProgressChanged += (sender, args) =>
+          {
+            Console.WriteLine(
+              $"received: {args.BytesReceived} from: {args.TotalBytesToReceive} progress: {args.ProgressPercentage} state: {args.UserState}");
+          };
+          client.DownloadFile(trackDownloadUrl, $"{folder}/{track.Title}.mp3");
+        }
+
+        Console.WriteLine("Done");
+        return true;
       }
-      Console.WriteLine("Done");
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.ToString());
+      }
+
+      return false;
     }
 
-    public StreamTrack GetTrackStream(Track track)
+    public StreamTrack ExtractStreamTrack(Track track)
     {
       var trackDownloadUrl = GetURLDownloadTrack(track);
       Console.WriteLine($"track download url: {trackDownloadUrl}");
@@ -151,7 +128,7 @@ namespace Yandex.Music
       return StreamTrack.Open(trackDownloadUrl, track.FileSize);
     }
 
-    public byte[] GetDataTrack(Track track)
+    public byte[] ExtractDataTrack(Track track)
     {
       var trackDownloadUrl = GetURLDownloadTrack(track);
       byte[] bytes;
@@ -163,6 +140,51 @@ namespace Yandex.Music
 
       return bytes;
     }
+
+    public List<Track> SearchTrack(string trackName, int pageNumber = 0)
+    {
+      var tracks = Search(trackName, SearchType.Tracks, pageNumber).Select(x => (Track)x).ToList();
+
+      return tracks;
+    }
+
+    public List<Artist> SearchArtist(string artistName, int pageNumber = 0)
+    {
+      var artists = Search(artistName, SearchType.Artists, pageNumber).Select(x => (Artist)x).ToList();
+
+      return artists;
+    }
+
+    private List<ISearchable> Search(string searchText, SearchType searchType, int page = 0)
+    {
+      var listResult = new List<ISearchable>();
+      var searchTypeAsString = searchType.ToString();
+      var urlSearch = new StringBuilder();
+      urlSearch.Append($"https://music.yandex.ru/handlers/music-search.jsx?text={searchText}");
+      urlSearch.Append($"&type={searchTypeAsString}");
+      urlSearch.Append(
+        $"&page={page}&ncrnd=0.7060701951464323&lang=ru&external-domain=music.yandex.ru&overembed=false");
+
+      var request = GetRequest(new Uri(urlSearch.ToString()), WebRequestMethods.Http.Get);
+
+      using (var response = (HttpWebResponse) request.GetResponse())
+      {
+        var json = GetDataFromResponse(response);
+
+        if (searchType == SearchType.Tracks)
+        {
+          listResult = Track.FromJsonArray((JArray) json["tracks"]["items"]).Select(x => (ISearchable) x).ToList();
+        } 
+        else if (searchType == SearchType.Artists)
+        {
+          listResult = Artist.FromJsonArray((JArray) json["artists"]["items"]).Select(x => (ISearchable) x).ToList();
+        }
+      }
+
+      return listResult;
+    }
+
+
 
     protected Uri GetURLDownloadTrack(Track track)
     {

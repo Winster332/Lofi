@@ -4,7 +4,7 @@
   {
     All,
     Authorize,
-    Download,
+    ExtractTrack,
     GetTracks,
     SendTracks,
     RemoveTrack,

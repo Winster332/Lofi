@@ -10,7 +10,7 @@ namespace Lofty.Modules.BddTests
 
   public class LofiTest 
   {
-    public LofiYandexMusicApi Api { get; set; }
+    public YandexApi Api { get; set; }
     public LofiTestHarness Fixture { get; set; }
     
     public LofiTest(LofiTestHarness fixture)

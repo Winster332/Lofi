@@ -27,7 +27,7 @@ namespace Lofi.Simple
 //      System.Threading.Thread.Sleep(5000);
 //      memoryStream.SaveToFile(currentTrack.Title);
 
-      var trackBytes = yandexApi.GetDataTrack(currentTrack);
+      var trackBytes = yandexApi.ExtractDataTrack(currentTrack);
 
       using (var stream = new FileStream(currentTrack.Title, FileMode.Create))
       {

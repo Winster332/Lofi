@@ -12,6 +12,7 @@ namespace Yandex.Music
     public Uri Url { get; set; }
     public int TrackSize { get; set; }
     public event EventHandler<StreamTrack> Complated;
+    public Task Task { get; set; }
     
     private StreamTrack()
     {
@@ -44,7 +45,7 @@ namespace Yandex.Music
         Url = trackUrl
       };
       
-      Task.Factory.StartNew(() =>
+      streamTrack.Task = Task.Factory.StartNew(() =>
       {
         var response = HttpWebRequest.Create(trackUrl).GetResponse();
         using (var stream = response.GetResponseStream())
