@@ -14,6 +14,14 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
     }
 
     [Fact, YandexTrait(TraitGroup.GetTracks)]
+    public void GetAlbums_Search_ReturnAlbums()
+    {
+      var tracks = Api.SearchAlbums("a", 0);
+      tracks.Should().NotHaveCount(0);
+      tracks.Should().HaveCount(10);
+    }
+    
+    [Fact, YandexTrait(TraitGroup.GetTracks)]
     public void GetTracks_Search_ReturnTracks()
     {
       var tracks = Api.SearchTrack("a", 0);

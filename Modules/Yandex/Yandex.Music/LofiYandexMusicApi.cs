@@ -154,6 +154,13 @@ namespace Yandex.Music
 
       return artists;
     }
+    
+    public List<Album> SearchAlbums(string albumName, int pageNumber = 0)
+    {
+      var artists = Search(albumName, SearchType.Albums, pageNumber).Select(x => (Album)x).ToList();
+
+      return artists;
+    }
 
     private List<ISearchable> Search(string searchText, SearchType searchType, int page = 0)
     {
@@ -170,21 +177,25 @@ namespace Yandex.Music
       using (var response = (HttpWebResponse) request.GetResponse())
       {
         var json = GetDataFromResponse(response);
-
+        var fieldName = searchType.ToString().ToLower();
+        var jArray = (JArray) json[fieldName]["items"];
+        
         if (searchType == SearchType.Tracks)
         {
-          listResult = Track.FromJsonArray((JArray) json["tracks"]["items"]).Select(x => (ISearchable) x).ToList();
+          listResult = Track.FromJsonArray(jArray).Select(x => (ISearchable) x).ToList();
         } 
         else if (searchType == SearchType.Artists)
         {
-          listResult = Artist.FromJsonArray((JArray) json["artists"]["items"]).Select(x => (ISearchable) x).ToList();
+          listResult = Artist.FromJsonArray(jArray).Select(x => (ISearchable) x).ToList();
+        }
+        else if (searchType == SearchType.Albums)
+        {
+          listResult = Album.FromJsonArray(jArray).Select(x => (ISearchable) x).ToList();
         }
       }
 
       return listResult;
     }
-
-
 
     protected Uri GetURLDownloadTrack(Track track)
     {

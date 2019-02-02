@@ -3,6 +3,7 @@
   public enum SearchType
   {
     Tracks,
-    Artists
+    Artists,
+    Albums
   }
 }

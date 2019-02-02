@@ -57,5 +57,13 @@ namespace Yandex.Music
     /// <param name="pageNumber">Page number</param>
     /// <returns></returns>
     List<Artist> SearchArtist(string artistName, int pageNumber = 0);
+
+    /// <summary>
+    /// Search by albums
+    /// </summary>
+    /// <param name="albumName">Album name</param>
+    /// <param name="pageNumber">page number</param>
+    /// <returns></returns>
+    List<Album> SearchAlbums(string albumName, int pageNumber = 0);
   }
 }
