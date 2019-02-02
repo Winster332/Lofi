@@ -155,6 +155,69 @@ namespace Yandex.Music
       Console.WriteLine("Done");
     }
 
+    public void GetTrackStream(Track track, Action<MemoryStream> callback)
+    {
+      var downloadInfo = GetDownloadTrackInfo(track.StorageDir);
+      var key = "";//downloadInfo.Path.Substring(1, downloadInfo.Path.Length - 1) + downloadInfo.S;
+
+      using (var md5 = MD5.Create())
+      {
+        key = GetMdHesh(md5, $"XGRlBW9FXlekgbPrRHuSiA{downloadInfo.Path.Substring(1, downloadInfo.Path.Length - 1)}{downloadInfo.S}");
+      }
+
+      var trackDownloadUrl =
+        String.Format("http://{0}/get-mp3/{1}/{2}{3}?track-id={4}&region=225&from=service-search",
+          downloadInfo.Host, 
+          key, 
+          downloadInfo.Ts,
+          downloadInfo.Path,
+          track.Id);
+      Console.WriteLine($"track download url: {trackDownloadUrl}");
+
+      var isNetworing = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
+      
+      Console.WriteLine($"Get {track.Title} track. Networking: {isNetworing}");
+
+      using (var memory = new MemoryStream())
+      {
+        using (var client = new WebClient())
+        {
+//          client.OpenReadCompleted += (sender, args) =>
+//          {
+//            Console.WriteLine("OepnRead: ");
+//          };
+//          client.DownloadProgressChanged += (sender, args) =>
+//          {
+//            Console.WriteLine(sender);
+//            Console.WriteLine("231");
+//          };
+//          client.DownloadDataCompleted += (sender, args) =>
+//          {
+//            Console.WriteLine("comp");
+//          };
+//          client.DownloadDataAsync(new Uri(trackDownloadUrl));
+
+          using (var stream = client.OpenRead(trackDownloadUrl))
+          {
+            var length = track.FileSize;
+            var bytes = new byte[length];
+            while ((length = stream.Read(bytes, 0, bytes.Length)) > 0)
+            {
+              using (var fileStream = new FileStream(track.Title, FileMode.OpenOrCreate))
+              {
+                fileStream.Write(bytes, 0, bytes.Length);
+              }
+            }
+          }
+        }
+      }
+
+
+//        client.DownloadFile(trackDownloadUrl, $"data/{track.Title}.mp3");
+//      }
+      Console.WriteLine("Done");
+    }
+
     private string GetMdHesh(MD5 md5, string str)
     {
       var data = md5.ComputeHash(Encoding.UTF8.GetBytes(str));
