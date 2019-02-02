@@ -23,7 +23,6 @@ namespace Yandex.Music
     private string _login;
     private string _password;
     private CookieContainer _cookies;
-    private Uri _passportUri = new Uri("https://pda-passport.yandex.ru/passport?mode=auth");
     
     public LofiYandexMusicApi(string login, string password)
     {
@@ -36,8 +35,11 @@ namespace Yandex.Music
       };
     }
 
-    public void Authorize()
+    public bool Authorize()
     {
+      var result = false;
+      var _passportUri = new Uri("https://pda-passport.yandex.ru/passport?mode=auth");
+      
       var request = GetRequest(_passportUri,
         new KeyValuePair<string, string>("login", _login),
         new KeyValuePair<string, string>("passwd", _password),
@@ -49,16 +51,22 @@ namespace Yandex.Music
         using (var response = (HttpWebResponse) request.GetResponse())
         {
           _cookies.Add(response.Cookies);
+          result = true;
+          
           if (response.ResponseUri == _passportUri)
           {
+            result = false;
             throw new Exception("Error auth");
           }
         }
       }
       catch (Exception ex)
       {
+        result = false;
         throw new Exception("Fuck-fuck-fuck");
       }
+
+      return result;
     }
 
     public List<Track> GetListFavorites()
@@ -158,7 +166,7 @@ namespace Yandex.Music
       return bytes;
     }
 
-    private Uri GetURLDownloadTrack(Track track)
+    protected Uri GetURLDownloadTrack(Track track)
     {
       var downloadInfo = GetDownloadTrackInfo(track.StorageDir);
       var key = "";//downloadInfo.Path.Substring(1, downloadInfo.Path.Length - 1) + downloadInfo.S;
@@ -179,7 +187,7 @@ namespace Yandex.Music
       return new Uri(trackDownloadUrl);
     }
 
-    private string GetMdHesh(MD5 md5, string str)
+    protected string GetMdHesh(MD5 md5, string str)
     {
       var data = md5.ComputeHash(Encoding.UTF8.GetBytes(str));
       var sBuilder = new StringBuilder();
@@ -192,7 +200,7 @@ namespace Yandex.Music
       return sBuilder.ToString();
     }
 
-    private TrackDownloadInfo GetDownloadTrackInfo(string storageDir)
+    protected TrackDownloadInfo GetDownloadTrackInfo(string storageDir)
     {
       var fileName = GetDownloadTrackInfoFileName(storageDir);
       var request = GetRequest(new Uri($"http://storage.music.yandex.ru/download-info/{storageDir}/{fileName}"));
@@ -224,7 +232,7 @@ namespace Yandex.Music
       return trackDownloadInfo;
     }
 
-    private string GetDownloadTrackInfoFileName(string storageDir)
+    protected string GetDownloadTrackInfoFileName(string storageDir)
     {
       var request = GetRequest(new Uri($"http://storage.music.yandex.ru/get/{storageDir}/2.xml"), WebRequestMethods.Http.Get);
       var fileName = "";
