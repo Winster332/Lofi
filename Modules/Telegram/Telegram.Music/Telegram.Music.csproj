@@ -5,4 +5,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Lofy.Modules.Core\Lofy.Modules.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="TLSharp" Version="0.1.0.379" />
+  </ItemGroup>
 </Project>
