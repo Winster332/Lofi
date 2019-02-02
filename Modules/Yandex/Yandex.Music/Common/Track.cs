@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
@@ -11,8 +12,8 @@ namespace Yandex.Music
     public string RealId { get; set; }
     public string Title { get; set; }
     public Major Major { get; set; }
-    public bool Available { get; set; }
-    public bool AvailableForPremiumUsers { get; set; }
+    public bool? Available { get; set; }
+    public bool? AvailableForPremiumUsers { get; set; }
     public int DurationMS { get; set; }
     public string StorageDir { get; set; }
     public int FileSize { get; set; }
@@ -25,22 +26,18 @@ namespace Yandex.Music
       {
         var track = new Track
         {
-          Id = jTrack["id"].ToObject<string>(),
-          RealId = jTrack.Contains("realId") == true ? jTrack["realId"].ToObject<string>() : "",
-          Title = jTrack["title"].ToObject<string>(),
-          Major = jTrack.Contains("major") == true ? new Major
-          {
-            Id = jTrack["major"]["id"].ToObject<string>(),
-            Name = jTrack["major"]["name"].ToObject<string>()
-          } : null,
-          Available = jTrack["available"].ToObject<bool>(),
-          AvailableForPremiumUsers = jTrack["availableForPremiumUsers"].ToObject<bool>(),
+          Id = jTrack.GetString("id"),
+          RealId = jTrack.GetString("realId"),
+          Title = jTrack.GetString("title"),
+          Major = Major.FromJson(jTrack.Contains("major")),
+          Available = jTrack.GetBool("available"),
+          AvailableForPremiumUsers = jTrack.GetBool("availableForPremiumUsers"),
 
           DurationMS = jTrack["durationMs"].ToObject<int>(),
-          StorageDir = jTrack["storageDir"].ToObject<string>(),
-          FileSize = jTrack.Contains("fileSize") ? jTrack["fileSize"].ToObject<int>() : -1,
+          StorageDir = jTrack.GetString("storageDir"),
+          FileSize = jTrack.GetInt("fileSize"),
           Artists = Artist.FromJsonArray(jTrack["artists"].ToObject<JArray>()),
-          OgImage = jTrack.Contains("ogImage") ? jTrack["ogImage"].ToObject<string>() : ""
+          OgImage = jTrack.GetString("ogImage")
         };
         return track;
       }

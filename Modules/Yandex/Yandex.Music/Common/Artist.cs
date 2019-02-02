@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
@@ -8,8 +9,8 @@ namespace Yandex.Music
   {
     public string Id { get;set; }
     public string Name { get; set; }
-    public bool Various { get; set; }
-    public bool Composer { get; set; }
+    public bool? Various { get; set; }
+    public bool? Composer { get; set; }
     public Cover Cover { get; set; }
     public string[] Genres { get; set; }
 
@@ -17,15 +18,15 @@ namespace Yandex.Music
     {
       var artist = new Artist
       {
-        Id = jArtist["id"].ToObject<string>(),
-        Name = jArtist["name"].ToObject<string>(),
-        Various = jArtist["various"].ToObject<bool>(),
-        Composer = jArtist.Contains("composer") ? jArtist["composer"].ToObject<bool>() : false,
+        Id = jArtist.GetString("id"),
+        Name = jArtist.GetString("name"),
+        Various = jArtist.GetBool("various"),
+        Composer = jArtist.GetBool("composer"),
         Cover = jArtist.Contains("cover") ? new Cover
         {
-          Type = jArtist["cover"]["type"].ToObject<string>(),
-          Prefix = jArtist["cover"]["prefix"].ToObject<string>(),
-          Url = jArtist["cover"]["uri"].ToObject<string>()
+          Type = jArtist["cover"].GetString("type"),
+          Prefix = jArtist["cover"].GetString("prefix"),
+          Url = jArtist["cover"].GetString("uri")
         } : null,
         Genres = new string[] { }
       };
