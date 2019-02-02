@@ -8,6 +8,8 @@ using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -117,32 +119,8 @@ namespace Yandex.Music
 
     public void DownloadTrack(Track track)
     {
-      Console.WriteLine("Begin download track");
-      var downloadInfo = GetDownloadTrackInfo(track.StorageDir);
-      Console.WriteLine("Get download-info data");
-
-      var key = "";//downloadInfo.Path.Substring(1, downloadInfo.Path.Length - 1) + downloadInfo.S;
-
-      Console.WriteLine("Create md5 hash");
-      using (var md5 = MD5.Create())
-      {
-        key = GetMdHesh(md5, $"XGRlBW9FXlekgbPrRHuSiA{downloadInfo.Path.Substring(1, downloadInfo.Path.Length - 1)}{downloadInfo.S}");
-      }
-
-      var trackDownloadUrl =
-        String.Format("http://{0}/get-mp3/{1}/{2}{3}?track-id={4}&region=225&from=service-search",
-          downloadInfo.Host, 
-          key, 
-          downloadInfo.Ts,
-          downloadInfo.Path,
-          track.Id);
-      Console.WriteLine($"track download url: {trackDownloadUrl}");
-
+      var trackDownloadUrl = GetURLDownloadTrack(track);
       var isNetworing = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
-      
-      
-      
-      Console.WriteLine($"Get {track.Title} track. Networking: {isNetworing}");
       
       using (var client = new WebClient())
       {
@@ -155,7 +133,32 @@ namespace Yandex.Music
       Console.WriteLine("Done");
     }
 
-    public void GetTrackStream(Track track, Action<MemoryStream> callback)
+    public StreamTrack GetTrackStream(Track track)
+    {
+      var trackDownloadUrl = GetURLDownloadTrack(track);
+      Console.WriteLine($"track download url: {trackDownloadUrl}");
+
+      var isNetworing = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
+
+      Console.WriteLine($"Get {track.Title} track. Networking: {isNetworing}");
+
+      return StreamTrack.Open(trackDownloadUrl, track.FileSize);
+    }
+
+    public byte[] GetDataTrack(Track track)
+    {
+      var trackDownloadUrl = GetURLDownloadTrack(track);
+      byte[] bytes;
+      
+      using (var client = new WebClient())
+      {
+        bytes = client.DownloadData(trackDownloadUrl);
+      }
+
+      return bytes;
+    }
+
+    private Uri GetURLDownloadTrack(Track track)
     {
       var downloadInfo = GetDownloadTrackInfo(track.StorageDir);
       var key = "";//downloadInfo.Path.Substring(1, downloadInfo.Path.Length - 1) + downloadInfo.S;
@@ -172,50 +175,8 @@ namespace Yandex.Music
           downloadInfo.Ts,
           downloadInfo.Path,
           track.Id);
-      Console.WriteLine($"track download url: {trackDownloadUrl}");
 
-      var isNetworing = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
-      
-      Console.WriteLine($"Get {track.Title} track. Networking: {isNetworing}");
-
-      using (var memory = new MemoryStream())
-      {
-        using (var client = new WebClient())
-        {
-//          client.OpenReadCompleted += (sender, args) =>
-//          {
-//            Console.WriteLine("OepnRead: ");
-//          };
-//          client.DownloadProgressChanged += (sender, args) =>
-//          {
-//            Console.WriteLine(sender);
-//            Console.WriteLine("231");
-//          };
-//          client.DownloadDataCompleted += (sender, args) =>
-//          {
-//            Console.WriteLine("comp");
-//          };
-//          client.DownloadDataAsync(new Uri(trackDownloadUrl));
-
-          using (var stream = client.OpenRead(trackDownloadUrl))
-          {
-            var length = track.FileSize;
-            var bytes = new byte[length];
-            while ((length = stream.Read(bytes, 0, bytes.Length)) > 0)
-            {
-              using (var fileStream = new FileStream(track.Title, FileMode.OpenOrCreate))
-              {
-                fileStream.Write(bytes, 0, bytes.Length);
-              }
-            }
-          }
-        }
-      }
-
-
-//        client.DownloadFile(trackDownloadUrl, $"data/{track.Title}.mp3");
-//      }
-      Console.WriteLine("Done");
+      return new Uri(trackDownloadUrl);
     }
 
     private string GetMdHesh(MD5 md5, string str)
