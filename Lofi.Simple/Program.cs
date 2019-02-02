@@ -12,8 +12,8 @@ namespace Lofi.Simple
   {
     static void Main(string[] args)
     {
-      var yandexApi = new LofiYandexMusicApi("Winster332", "Stas32MP3tanki");
-      yandexApi.Authorize();
+      var yandexApi = new LofiYandexMusicApi();
+      yandexApi.Authorize("Winster332", "Stas32MP3tanki");
       var tracks = yandexApi.GetListFavorites();
       var currentTrack = tracks.First();
 //      tracks.ForEach(track => yandexApi.DownloadTrack(track));

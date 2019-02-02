@@ -24,19 +24,19 @@ namespace Yandex.Music
     private string _password;
     private CookieContainer _cookies;
     
-    public LofiYandexMusicApi(string login, string password)
+    public LofiYandexMusicApi()
     {
-      _login = login;
-      _password = password;
-      
       NetworkChange.NetworkAvailabilityChanged += (sender, args) =>
       {
         Console.WriteLine($"Networking: {args.IsAvailable}");
       };
     }
 
-    public bool Authorize()
+    public bool Authorize(string login, string password)
     {
+      _login = login;
+      _password = password;
+      
       var result = false;
       var _passportUri = new Uri("https://pda-passport.yandex.ru/passport?mode=auth");
       
@@ -56,14 +56,12 @@ namespace Yandex.Music
           if (response.ResponseUri == _passportUri)
           {
             result = false;
-            throw new Exception("Error auth");
           }
         }
       }
       catch (Exception ex)
       {
         result = false;
-        throw new Exception("Fuck-fuck-fuck");
       }
 
       return result;
