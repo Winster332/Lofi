@@ -14,6 +14,15 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
     }
 
     [Fact, YandexTrait(TraitGroup.GetTracks)]
+    public void GetPlayListOfDay_Test()
+    {
+      var playlist = Api.GetPlaylistOfDay();
+      playlist.Should().NotBeNull();
+      playlist.Tracks.Should().HaveCount(60);
+      playlist.Title.Should().BeEquivalentTo("Плейлист дня");
+    }
+    
+    [Fact, YandexTrait(TraitGroup.GetTracks)]
     public void GetUsers_Search_ReturnUsers()
     {
       var users = Api.SearchUsers("a", 0);

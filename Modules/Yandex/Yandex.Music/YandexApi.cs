@@ -81,5 +81,11 @@ namespace Yandex.Music
     /// <param name="pageNumber">Page number</param>
     /// <returns></returns>
     List<User> SearchUsers(string userName, int pageNumber = 0);
+
+    /// <summary>
+    /// Return best playlist of day
+    /// </summary>
+    /// <returns></returns>
+    Playlist GetPlaylistOfDay();
   }
 }

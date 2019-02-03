@@ -88,6 +88,23 @@ namespace Yandex.Music
       return tracks;
     }
 
+    public Playlist GetPlaylistOfDay()
+    {
+      var request = GetRequest(new Uri($"https://music.yandex.ru/handlers/playlist.jsx?owner=yamusic-daily&kinds=57151881&light=true&madeFor=&lang=ru&external-domain=music.yandex.ru&overembed=false&ncrnd=0.9083773647705418"));
+      var playlist = default(Playlist);
+      
+      using (var response = (HttpWebResponse) request.GetResponse())
+      {
+        var data = GetDataFromResponse(response);
+        var jPlaylist = data["playlist"];
+        playlist = Playlist.FromJson(jPlaylist);
+
+        _cookies.Add(response.Cookies);
+      }
+
+      return playlist;
+    }
+
     public bool ExtractTrackToFile(Track track, string folder)
     {
       try
