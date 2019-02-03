@@ -37,14 +37,6 @@ namespace Yandex.Music
 
     public LofiYandexMusicApi()
     {
-      Configuration = new ConfigurationBuilder()
-        .AddJsonFile("appsettings.json", false, true)
-        .Build();
-
-      Log.Logger = new LoggerConfiguration()
-        .ReadFrom.Configuration(Configuration)
-        .CreateLogger();
-
       NetworkChange.NetworkAvailabilityChanged += (sender, args) =>
       {
         Log.Information($"Networking: {args.IsAvailable}");
