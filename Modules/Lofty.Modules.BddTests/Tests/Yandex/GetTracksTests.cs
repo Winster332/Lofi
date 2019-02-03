@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using Lofty.Modules.BddTests.Traits;
 using Serilog;
@@ -15,6 +16,16 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
       Api.Authorize("Winster332", "Stas32MP3tanki");
     }
 
+    [Fact, YandexTrait(TraitGroup.GetTracks)]
+    public void GetAlbum_Test()
+    {
+      var albumId = "3236027";
+      var album = Api.GetAlbum(albumId);
+      album.Should().NotBeNull();
+      album.Id.Should().BeEquivalentTo(albumId);
+      album.Volumes.First().Should().HaveCount(40);
+    }
+    
     [Fact, YandexTrait(TraitGroup.GetTracks)]
     public void GetPlayListDejaVu_Test()
     {

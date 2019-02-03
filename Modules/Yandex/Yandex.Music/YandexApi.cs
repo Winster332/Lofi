@@ -93,5 +93,12 @@ namespace Yandex.Music
     /// </summary>
     /// <returns></returns>
     Playlist GetPlaylistDejaVu();
+
+    /// <summary>
+    /// Return album from albumId
+    /// </summary>
+    /// <param name="albumId">Id album</param>
+    /// <returns></returns>
+    Album GetAlbum(string albumId);
   }
 }

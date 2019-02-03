@@ -93,6 +93,22 @@ namespace Yandex.Music
       return result;
     }
 
+    public Album GetAlbum(string albumId)
+    {
+      var request = GetRequest(new Uri($"https://music.yandex.ru/handlers/album.jsx?album={albumId}&lang=ru&external-domain=music.yandex.ru&overembed=false&ncrnd=0.7993721501733155"),  WebRequestMethods.Http.Get);
+      var album = default(Album);
+      
+      using (var response = (HttpWebResponse) request.GetResponse())
+      {
+        var data = GetDataFromResponse(response);
+        album = Album.FromJson(data);
+
+        _cookies.Add(response.Cookies);
+      }
+
+      return album;
+    }
+    
     public List<Track> GetListFavorites(string login = null)
     {
       if (login == null)
