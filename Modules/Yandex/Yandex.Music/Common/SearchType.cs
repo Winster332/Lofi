@@ -5,6 +5,7 @@
     Tracks,
     Artists,
     Albums,
-    Playlists
+    Playlists,
+    Users
   }
 }

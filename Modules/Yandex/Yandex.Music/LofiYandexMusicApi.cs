@@ -157,16 +157,23 @@ namespace Yandex.Music
 
     public List<Playlist> SearchPlaylist(string playlistName, int pageNumber = 0)
     {
-      var artists = Search(playlistName, SearchType.Playlists, pageNumber).Select(x => (Playlist)x).ToList();
+      var playlists = Search(playlistName, SearchType.Playlists, pageNumber).Select(x => (Playlist)x).ToList();
 
-      return artists;
+      return playlists;
     }
 
     public List<Album> SearchAlbums(string albumName, int pageNumber = 0)
     {
-      var artists = Search(albumName, SearchType.Albums, pageNumber).Select(x => (Album)x).ToList();
+      var albums = Search(albumName, SearchType.Albums, pageNumber).Select(x => (Album)x).ToList();
 
-      return artists;
+      return albums;
+    }
+    
+    public List<User> SearchUsers(string userName, int pageNumber = 0)
+    {
+      var users = Search(userName, SearchType.Users, pageNumber).Select(x => (User)x).ToList();
+
+      return users;
     }
 
     private List<ISearchable> Search(string searchText, SearchType searchType, int page = 0)
@@ -202,6 +209,10 @@ namespace Yandex.Music
         else if (searchType == SearchType.Playlists)
         {
           listResult = Playlist.FromJsonArray(jArray).Select(x => (ISearchable) x).ToList();
+        }
+        else if (searchType == SearchType.Users)
+        {
+          listResult = User.FromJsonArray(jArray).Select(x => (ISearchable) x).ToList();
         }
       }
 
