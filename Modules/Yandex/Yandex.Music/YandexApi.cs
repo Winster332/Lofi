@@ -87,5 +87,11 @@ namespace Yandex.Music
     /// </summary>
     /// <returns></returns>
     Playlist GetPlaylistOfDay();
+
+    /// <summary>
+    /// Return play list deja vu
+    /// </summary>
+    /// <returns></returns>
+    Playlist GetPlaylistDejaVu();
   }
 }

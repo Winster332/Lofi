@@ -14,6 +14,15 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
     }
 
     [Fact, YandexTrait(TraitGroup.GetTracks)]
+    public void GetPlayListDejaVu_Test()
+    {
+      var playlist = Api.GetPlaylistDejaVu();
+      playlist.Should().NotBeNull();
+      playlist.Tracks.Should().HaveCount(30);
+      playlist.Title.Should().BeEquivalentTo("Дежавю");
+    }
+    
+    [Fact, YandexTrait(TraitGroup.GetTracks)]
     public void GetPlayListOfDay_Test()
     {
       var playlist = Api.GetPlaylistOfDay();
