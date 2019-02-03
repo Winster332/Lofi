@@ -17,7 +17,7 @@ namespace Yandex.Music
     public List<string> Regions { get; set; }
     public string StorageDir { get; set; }
     public string Title { get; set; }
-    public int TrackCount { get; set; }
+    public int? TrackCount { get; set; }
     public string Year { get; set; }
 
     public static Album FromJson(JToken jAlbum)
@@ -43,7 +43,7 @@ namespace Yandex.Music
       return album;
     }
     
-    public static List<Album> FromJsonArray(JToken jAlbums)
+    public static List<Album> FromJsonArray(JArray jAlbums)
     {
       return jAlbums.Select(FromJson).ToList();
     }

@@ -18,13 +18,18 @@ namespace Yandex.Music.Extensions
       return json[name].ToObject<string>();
     }
     
-    public static int GetInt(this JToken json, string name)
+    public static int? GetInt(this JToken json, string name)
     {
       if (!json.ContainField(name))
       {
         Console.WriteLine($"Not found filed {name} into: \n{json}");
         
-        return -1;
+        return null;
+      }
+
+      if (json[name].ToString() == string.Empty)
+      {
+        return null;
       }
 
       return json[name].ToObject<int>();

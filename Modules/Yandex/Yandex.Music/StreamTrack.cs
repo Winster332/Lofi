@@ -10,7 +10,7 @@ namespace Yandex.Music
   public class StreamTrack : MemoryStream
   {
     public Uri Url { get; set; }
-    public int TrackSize { get; set; }
+    public int? TrackSize { get; set; }
     public event EventHandler<StreamTrack> Complated;
     public Task Task { get; set; }
     
@@ -36,7 +36,7 @@ namespace Yandex.Music
       Close();
     }
 
-    public static StreamTrack Open(Uri trackUrl, int sizeTrack)
+    public static StreamTrack Open(Uri trackUrl, int? sizeTrack)
     {
       var streamTrack = new StreamTrack
       {
@@ -50,7 +50,7 @@ namespace Yandex.Music
         var response = HttpWebRequest.Create(trackUrl).GetResponse();
         using (var stream = response.GetResponseStream())
         {
-          byte[] buffer = new byte[sizeTrack];
+          byte[] buffer = new byte[sizeTrack ?? 0];
           int read;
           while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
           {

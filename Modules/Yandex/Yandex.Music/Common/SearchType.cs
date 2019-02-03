@@ -4,6 +4,7 @@
   {
     Tracks,
     Artists,
-    Albums
+    Albums,
+    Playlists
   }
 }

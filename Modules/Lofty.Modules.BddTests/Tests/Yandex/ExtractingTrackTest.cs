@@ -36,7 +36,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
       var isFileExist = File.Exists(PathFile);
       isFileExist.Should().BeTrue();
 
-      var fileSize = 0;
+      int? fileSize = 0;
       using (var stream = File.Open(PathFile, FileMode.Open))
       {
         var stLength = stream.Length;
@@ -45,7 +45,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
         fileSize = buffer.Length;
       }
 
-      fileSize.Should().BeGreaterOrEqualTo(Track.FileSize);
+      fileSize.Should().BeGreaterOrEqualTo(Track.FileSize.Value);
       
       File.Delete(PathFile);
     }
@@ -54,7 +54,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
     public void ExtractingTrack_ExtractByteData_ReturnByteTrack()
     {
       var byteData = Api.ExtractDataTrack(Track);
-      byteData.Length.Should().BeGreaterOrEqualTo(Track.FileSize);
+      byteData.Length.Should().BeGreaterOrEqualTo(Track.FileSize.Value);
     }
     
     [Fact, YandexTrait(TraitGroup.ExtractTrack)]
@@ -81,7 +81,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
       Task.WaitAll(stream.Task);
 
       isComplated.Should().BeTrue();
-      fileSizeFromStream.Should().BeGreaterOrEqualTo(Track.FileSize);
+      fileSizeFromStream.Should().BeGreaterOrEqualTo(Track.FileSize.Value);
     }
   }
 }

@@ -22,12 +22,7 @@ namespace Yandex.Music
         Name = jArtist.GetString("name"),
         Various = jArtist.GetBool("various"),
         Composer = jArtist.GetBool("composer"),
-        Cover = jArtist.Contains("cover") ? new Cover
-        {
-          Type = jArtist["cover"].GetString("type"),
-          Prefix = jArtist["cover"].GetString("prefix"),
-          Url = jArtist["cover"].GetString("uri")
-        } : null,
+        Cover = jArtist.ContainField("cover") ? Cover.FromJson(jArtist["cover"]) : null,
         Genres = new string[] { }
       };
 
@@ -40,10 +35,4 @@ namespace Yandex.Music
     }
   }
 
-  public class Cover
-  {
-    public string Type { get; set; }
-    public string Prefix { get; set; }
-    public string Url { get; set; }
-  }
 }

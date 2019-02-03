@@ -30,6 +30,14 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
     }
     
     [Fact, YandexTrait(TraitGroup.GetTracks)]
+    public void GetPlaylists_Search_ReturnPlaylists()
+    {
+      var playlists = Api.SearchPlaylist("a", 0);
+      playlists.Should().NotHaveCount(0);
+      playlists.Should().HaveCount(10);
+    }
+    
+    [Fact, YandexTrait(TraitGroup.GetTracks)]
     public void GetArtists_Search_ReturnAllArtists()
     {
       var tracks = Api.SearchArtist("a", 0);
