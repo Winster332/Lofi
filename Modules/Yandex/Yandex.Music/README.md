@@ -10,8 +10,6 @@ Usage
  var yandexApi = new LofiYandexMusicApi();
  
  yandexApi.Authorize("login", "password");
- 
- var tracks = yandexApi.GetListFavorites();
  // place code here
 })
 ```
