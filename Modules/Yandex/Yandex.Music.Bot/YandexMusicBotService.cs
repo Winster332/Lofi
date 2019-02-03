@@ -1,17 +1,22 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MihaZupan;
 using PeterKottas.DotNetCore.WindowsService.Base;
 using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Yandex.Music.Bot.Controllers;
+using Yandex.Music.Bot.Extensions;
 using Yandex.Music.Extensions;
 
 namespace Yandex.Music.Bot
@@ -22,9 +27,9 @@ namespace Yandex.Music.Bot
     public static string Title => Assembly.GetEntryAssembly().GetTitle();
     public static string Description => Assembly.GetEntryAssembly().GetDescription();
     public static string Version => Assembly.GetEntryAssembly().GetVersion();
-    public TelegramBotClient Bot { get; set; }
     
     public IConfigurationRoot Configuration { get; set; }
+    public IServiceProvider Container { get; set; }
 
     public void Start()
     {
@@ -44,22 +49,24 @@ namespace Yandex.Music.Bot
       Log.Information($"Description: {Description}");
       Log.Information($"Version: {Version}");
       Log.Information("Starting...");
-      
-      var proxySettings = new ProxySettings(Configuration.GetSection("Proxy"));
-      
-      var proxy = new HttpToSocks5Proxy(proxySettings.Socks5Hostname, proxySettings.Sock5Port, 
-        proxySettings.Username, proxySettings.Password);
 
-//            proxy.ResolveHostnamesLocally = true;
+      var services = new ServiceCollection();
 
-      Bot = new TelegramBotClient(Configuration.GetSection("TelegramBot").GetValue<string>("Token"), proxy);
-      var me = Bot.GetMeAsync().Result;
+      services.UseTelegramBot(Configuration);
+      services.UseYandexMusicApi();
+      services.UseRouter();
+
+      Container = services.BuildServiceProvider();
+
+      var bot = Container.GetService<TelegramBotClient>();
+      
+      var me = bot.GetMeAsync().Result;
       Console.Title = me.Username;
 
-      Bot.OnMessage += BotOnMessageReceived;
-      Bot.StartReceiving(Array.Empty<UpdateType>());
-      Log.Information($"Start listening for @{me.Username}");
+      bot.OnMessage += BotOnMessageReceived;
+      bot.StartReceiving(Array.Empty<UpdateType>());
       
+      Log.Information($"Start listening for @{me.Username}");
       Log.Information($"Bot {me.Username} started");
     }
 
@@ -67,57 +74,27 @@ namespace Yandex.Music.Bot
     {
       var message = messageEventArgs.Message;
       
-      if (message == null || message.Type != MessageType.Text) return;
+      
+      var result = Container.GetService<CommandRouter>().Push(message, Container);
+
+      if (result == null)
+      {
+        Container.GetService<HomeCommand>().Perform(message).GetAwaiter().GetResult();
+      }
+
+      var bot = Container.GetService<TelegramBotClient>();
       
       Log.Information($"GET[{message.From.Username}] > {message.Text}");
 
-      var commands = message.Text.Split(' ').First();
+      var command = message.Text.Split(' ').First();
       
-            switch (commands)
+            switch (command)
             {
-                // send inline keyboard
-                case "/inline":
-                    await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
-
-                    await Task.Delay(500); // simulate longer running task
-
-                    var inlineKeyboard = new InlineKeyboardMarkup(new[]
-                    {
-                        new [] // first row
-                        {
-                            InlineKeyboardButton.WithCallbackData("1.1"),
-                            InlineKeyboardButton.WithCallbackData("1.2"),
-                        },
-                        new [] // second row
-                        {
-                            InlineKeyboardButton.WithCallbackData("2.1"),
-                            InlineKeyboardButton.WithCallbackData("2.2"),
-                        }
-                    });
-
-                    await Bot.SendTextMessageAsync(
-                        message.Chat.Id,
-                        "Choose",
-                        replyMarkup: inlineKeyboard);
-                    break;
-
+                case "Авторизоваться": 
+                  break;
                 // send custom keyboard
-                case "/keyboard":
-                    ReplyKeyboardMarkup ReplyKeyboard = new[]
-                    {
-                        new[] { "1.1", "1.2" },
-                        new[] { "2.1", "2.2" },
-                    };
-
-                    await Bot.SendTextMessageAsync(
-                        message.Chat.Id,
-                        "Choose",
-                        replyMarkup: ReplyKeyboard);
-                    break;
-
-                // send a photo
                 case "/photo":
-                    await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+                    await bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
                     const string file = @"Files/tux.png";
 
@@ -125,7 +102,7 @@ namespace Yandex.Music.Bot
 
                     using (var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
-                        await Bot.SendPhotoAsync(
+                        await bot.SendPhotoAsync(
                             message.Chat.Id,
                             fileStream,
                             "Nice Picture");
@@ -140,32 +117,33 @@ namespace Yandex.Music.Bot
                         KeyboardButton.WithRequestContact("Contact"),
                     });
 
-                    await Bot.SendTextMessageAsync(
+                    await bot.SendTextMessageAsync(
                         message.Chat.Id,
                         "Who or Where are you?",
                         replyMarkup: RequestReplyKeyboard);
                     break;
 
-                default:
-                    const string usage = @"
-Usage:
-/inline   - send inline keyboard
-/keyboard - send custom keyboard
-/photo    - send a photo
-/request  - request location or contact";
+//                default:
+//                    const string usage = @"
+//Usage:
+///menu   - меню
+///keyboard - send custom keyboard
+///request  - request location or contact";
 
-                    await Bot.SendTextMessageAsync(
-                        message.Chat.Id,
-                        usage,
-                        replyMarkup: new ReplyKeyboardRemove());
-                    break;
+//                    await bot.SendTextMessageAsync(
+//                        message.Chat.Id,
+//                        usage,
+//                        replyMarkup: new ReplyKeyboardRemove());
+//                    break;
             }
     }
     
 
     public void Stop()
     {
-      Bot.StopReceiving();
+      var bot = Container.GetService<TelegramBotClient>();
+      
+      bot.StopReceiving();
     }
   }
 }
