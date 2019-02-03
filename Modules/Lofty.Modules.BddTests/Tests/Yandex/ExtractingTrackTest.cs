@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Lofty.Modules.BddTests.Traits;
 using Xunit;
+using Xunit.Abstractions;
 using Yandex.Music;
 
 namespace Lofty.Modules.BddTests.Tests.Yandex
@@ -17,7 +18,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
     public readonly string PathFile;
     public Track Track { get; set; }
     
-    public ExtractingTrackTest(LofiTestHarness fixture) : base(fixture)
+    public ExtractingTrackTest(LofiTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
     {
       if (!Directory.Exists(FolderData))
         Directory.CreateDirectory(FolderData);

@@ -1,14 +1,16 @@
 ﻿using System;
 using FluentAssertions;
 using Lofty.Modules.BddTests.Traits;
+using Serilog;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Lofty.Modules.BddTests.Tests.Yandex
 {
   [Collection("Lofi Test Harness")]
   public class GetTracksTests : LofiTest
   {
-    public GetTracksTests(LofiTestHarness fixture) : base(fixture)
+    public GetTracksTests(LofiTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
     {
       Api.Authorize("Winster332", "Stas32MP3tanki");
     }
@@ -20,6 +22,8 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
       playlist.Should().NotBeNull();
       playlist.Tracks.Should().HaveCount(30);
       playlist.Title.Should().BeEquivalentTo("Дежавю");
+      
+      Log.Information("123");
     }
     
     [Fact, YandexTrait(TraitGroup.GetTracks)]

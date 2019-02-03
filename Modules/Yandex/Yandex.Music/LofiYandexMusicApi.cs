@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -13,23 +14,48 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
+using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
   public class LofiYandexMusicApi : YandexApi
   {
+    public static string Name => Assembly.GetEntryAssembly().GetName().Name;
+    public static string Title => Assembly.GetEntryAssembly().GetTitle();
+    public static string Description => Assembly.GetEntryAssembly().GetDescription();
+    public static string Version => Assembly.GetEntryAssembly().GetVersion();
+
     private string _login;
     private string _password;
     private CookieContainer _cookies;
     
+    public IConfigurationRoot Configuration { get; set; }
+
     public LofiYandexMusicApi()
     {
+      Configuration = new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", false, true)
+        .Build();
+
+      Log.Logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(Configuration)
+        .CreateLogger();
+
       NetworkChange.NetworkAvailabilityChanged += (sender, args) =>
       {
-        Console.WriteLine($"Networking: {args.IsAvailable}");
+        Log.Information($"Networking: {args.IsAvailable}");
       };
+
+      Log.Information($"Module {Name} v.{Version} initialized");
+
+      Log.Information($"Name: {Name}");
+      Log.Information($"Title: {Title}");
+      Log.Information($"Description: {Description}");
+      Log.Information($"Version: {Version}");
     }
 
     public bool Authorize(string login, string password)
@@ -131,15 +157,9 @@ namespace Yandex.Music
 
         using (var client = new WebClient())
         {
-          client.DownloadProgressChanged += (sender, args) =>
-          {
-            Console.WriteLine(
-              $"received: {args.BytesReceived} from: {args.TotalBytesToReceive} progress: {args.ProgressPercentage} state: {args.UserState}");
-          };
           client.DownloadFile(trackDownloadUrl, $"{folder}/{track.Title}.mp3");
         }
 
-        Console.WriteLine("Done");
         return true;
       }
       catch (Exception ex)
@@ -153,11 +173,8 @@ namespace Yandex.Music
     public StreamTrack ExtractStreamTrack(Track track)
     {
       var trackDownloadUrl = GetURLDownloadTrack(track);
-      Console.WriteLine($"track download url: {trackDownloadUrl}");
 
       var isNetworing = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
-
-      Console.WriteLine($"Get {track.Title} track. Networking: {isNetworing}");
 
       return StreamTrack.Open(trackDownloadUrl, track.FileSize);
     }

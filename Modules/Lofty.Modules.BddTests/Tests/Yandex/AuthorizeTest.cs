@@ -1,13 +1,14 @@
 ﻿using FluentAssertions;
 using Lofty.Modules.BddTests.Traits;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Lofty.Modules.BddTests.Tests.Yandex
 {
   [Collection("Lofi Test Harness")]
   public class AuthorizeTest : LofiTest
   {
-    public AuthorizeTest(LofiTestHarness fixture) : base(fixture)
+    public AuthorizeTest(LofiTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
     {
     }
 

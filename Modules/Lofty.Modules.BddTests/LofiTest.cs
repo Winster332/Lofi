@@ -1,4 +1,7 @@
-﻿using Xunit;
+﻿using Serilog;
+using Serilog.Events;
+using Xunit;
+using Xunit.Abstractions;
 using Yandex.Music;
 
 namespace Lofty.Modules.BddTests
@@ -12,12 +15,20 @@ namespace Lofty.Modules.BddTests
   {
     public YandexApi Api { get; set; }
     public LofiTestHarness Fixture { get; set; }
-    
-    public LofiTest(LofiTestHarness fixture)
+
+    public LofiTest(LofiTestHarness fixture, ITestOutputHelper output = null)
     {
       Fixture = fixture;
-      
+
       Api = new LofiYandexMusicApi();
+      
+      if (output != null)
+      {
+        Log.Logger = new LoggerConfiguration()
+          .WriteTo
+          .TestOutput(output, LogEventLevel.Verbose)
+          .CreateLogger();
+      }
     }
   }
 }
