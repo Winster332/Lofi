@@ -1,6 +1,6 @@
 language: csharp
-solution: "./Lofi.sln"
+solution: Lofi.sln
 install:
-- travis_retry nuget restore -source "https://www.nuget.org/api/v2" ./Lofi.sln
+  - nuget restore Lofi.sln
 script:
-- xbuild ./Lofi.sln
+  - msbuild /p:Configuration=Release Lofi.sln
