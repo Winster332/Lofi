@@ -20,6 +20,12 @@ namespace Yandex.Music
             return new Uri(
                 $"https://music.yandex.ru/handlers/album.jsx?album={albumId}&lang=ru&external-domain=music.yandex.ru&overembed=false&ncrnd=0.7993721501733155");
         }
+      
+        public Uri GetTrackURL(string trackId)
+        {
+            return new Uri(
+                $"https://music.yandex.ru/handlers/track.jsx?track={trackId}&lang=ru&external-domain=music.yandex.ru&overembed=false");
+        }
 
         public Uri GetListFavoritesURL(string login)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using FluentAssertions;
 using Lofty.Modules.BddTests.Traits;
@@ -68,6 +69,19 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
       var tracks = Api.SearchTrack("a", 0);
       tracks.Should().NotHaveCount(0);
       tracks.Should().HaveCount(20);
+    }
+    
+    [Fact, YandexTrait(TraitGroup.GetTracks)]
+    public void GetTracks_SearchAndDownload_ReturnTracks()
+    {
+      Directory.CreateDirectory("music");
+      var tracks = Api.SearchTrack("хаски", 0);
+
+      for (var i = 0; i < 5; i++)
+      {
+        var track = tracks[i];
+        Api.ExtractTrackToFile(track, "music");
+      }
     }
     
     [Fact, YandexTrait(TraitGroup.GetTracks)]

@@ -104,6 +104,22 @@ namespace Yandex.Music
       return album;
     }
     
+    public Track GetTrack(string trackId)
+    {
+      var request = GetRequest(_settings.GetTrackURL(trackId),  WebRequestMethods.Http.Get);
+      var track = default(Track);
+      
+      using (var response = (HttpWebResponse) request.GetResponse())
+      {
+        var data = GetDataFromResponse(response)["track"];
+        track = Track.FromJson(data);
+
+        _cookies.Add(response.Cookies);
+      }
+
+      return track;
+    }
+    
     public List<Track> GetListFavorites(string login = null)
     {
       if (login == null)
@@ -166,7 +182,7 @@ namespace Yandex.Music
         var trackDonloadInfo = GetDownloadTrackInfo(track.StorageDir);
         var trackDownloadUrl = _settings.GetURLDownloadTrack(track, trackDonloadInfo);
         var isNetworing = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
-
+        
         using (var client = new WebClient())
         {
           client.DownloadFile(trackDownloadUrl, $"{folder}/{track.Title}.mp3");
@@ -234,9 +250,9 @@ namespace Yandex.Music
       return albums;
     }
     
-    public List<User> SearchUsers(string userName, int pageNumber = 0)
+    public List<YandexUser> SearchUsers(string userName, int pageNumber = 0)
     {
-      var users = Search(userName, SearchType.Users, pageNumber).Select(x => (User)x).ToList();
+      var users = Search(userName, SearchType.Users, pageNumber).Select(x => (YandexUser)x).ToList();
 
       return users;
     }
@@ -271,7 +287,7 @@ namespace Yandex.Music
         }
         else if (searchType == SearchType.Users)
         {
-          listResult = User.FromJsonArray(jArray).Select(x => (ISearchable) x).ToList();
+          listResult = YandexUser.FromJsonArray(jArray).Select(x => (ISearchable) x).ToList();
         }
       }
 

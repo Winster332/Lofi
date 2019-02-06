@@ -7,9 +7,9 @@ namespace Lofty.Modules.BddTests
   {
     public LofiTestHarness()
     {
-            var services = new ServiceCollection();
+      var services = new ServiceCollection();
     }
-    
+
     public void Dispose()
     {
     }

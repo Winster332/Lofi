@@ -80,7 +80,7 @@ namespace Yandex.Music
     /// <param name="userName">User name</param>
     /// <param name="pageNumber">Page number</param>
     /// <returns></returns>
-    List<User> SearchUsers(string userName, int pageNumber = 0);
+    List<YandexUser> SearchUsers(string userName, int pageNumber = 0);
 
     /// <summary>
     /// Return best playlist of day
@@ -100,5 +100,7 @@ namespace Yandex.Music
     /// <param name="albumId">Id album</param>
     /// <returns></returns>
     Album GetAlbum(string albumId);
+
+    Track GetTrack(string trackId);
   }
 }

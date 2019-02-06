@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MihaZupan;
 using Telegram.Bot;
-using Yandex.Music.Bot.Core;
 
 namespace Yandex.Music.Bot.Extensions
 {
@@ -23,24 +22,24 @@ namespace Yandex.Music.Bot.Extensions
 
     public static void UseYandexMusicApi(this ServiceCollection services)
     {
-      services.AddSingleton<YandexApi, LofiYandexMusicApi>();
+      services.AddTransient<YandexApi, LofiYandexMusicApi>();
     }
 
     public static void UseRouter(this ServiceCollection services)
     {
-      var router = new CommandRouter();
-      var assembly = Assembly.GetEntryAssembly();
-      var list = assembly.GetExportedTypes().Where(t => t.BaseType == typeof(Command)).ToList();
+//      var router = new CommandRouter();
+//      var assembly = Assembly.GetEntryAssembly();
+//      var list = assembly.GetExportedTypes().Where(t => t.BaseType == typeof(Command)).ToList();
 
-      list.ForEach(c =>
-      {
-        var name = c.Name.Replace("Command", "");
+//      list.ForEach(c =>
+//      {
+//        var name = c.Name.Replace("Command", "");
         
-        services.AddTransient(c);
-        router._commands.Add(name, c);
-      });
+//        services.AddTransient(c);
+//        router._commands.Add(name, c);
+//      });
       
-      services.AddSingleton(router);
+//      services.AddSingleton(router);
     }
   }
 }

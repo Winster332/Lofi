@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,8 +16,8 @@ using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
-using Yandex.Music.Bot.Controllers;
 using Yandex.Music.Bot.Extensions;
 using Yandex.Music.Extensions;
 
@@ -66,78 +68,88 @@ namespace Yandex.Music.Bot
       bot.OnMessage += BotOnMessageReceived;
       bot.StartReceiving(Array.Empty<UpdateType>());
       
+      bot.OnCallbackQuery += async (object sc, Telegram.Bot.Args.CallbackQueryEventArgs ev) =>
+      {
+        var message = ev.CallbackQuery.Message;
+        if (ev.CallbackQuery.Data == "callback1")
+        {
+          // сюда то что тебе нужно сделать при нажатии на первую кнопку 
+          Console.WriteLine("123");
+
+          await bot.SendTextMessageAsync(
+            message.Chat.Id,
+            "Спасибо что выбрали one");
+        }
+        else
+        if (ev.CallbackQuery.Data == "callback2")
+        {
+          // сюда то что нужно сделать при нажатии на вторую кнопку
+          await bot.SendTextMessageAsync(
+            message.Chat.Id,
+            "Спасибо что выбрали two");
+        }
+      };
+      
       Log.Information($"Start listening for @{me.Username}");
       Log.Information($"Bot {me.Username} started");
+      
     }
 
     private async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
     {
       var message = messageEventArgs.Message;
-      
-      
-      var result = Container.GetService<CommandRouter>().Push(message, Container);
 
-      if (result == null)
+      if (message.Type != MessageType.Text)
       {
-        Container.GetService<HomeCommand>().Perform(message).GetAwaiter().GetResult();
+        return;
       }
 
-      var bot = Container.GetService<TelegramBotClient>();
-      
+      var command = message.Text.Split(" ").First();
+
       Log.Information($"GET[{message.From.Username}] > {message.Text}");
 
-      var command = message.Text.Split(' ').First();
-      
-            switch (command)
+      var bot = Container.GetService<TelegramBotClient>();
+
+      if (command == "/start")
+      {
+        await bot.SendTextMessageAsync(
+          message.Chat.Id,
+          $"Привет {message.From.FirstName} {message.From.LastName}. Я бот который работает с Яндекс.Музыкой. Просто пришли мне ссылку на песню, и я скину тебе её");
+      }
+      else
+      {
+        if (Uri.TryCreate(message.Text, UriKind.Absolute, out var uriResult)
+            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+        {
+          if (uriResult.DnsSafeHost == "music.yandex.ru" && uriResult.Segments.Contains("track/"))
+          {
+            var trackIdFromUrl = uriResult.Segments.LastOrDefault();
+
+            if (trackIdFromUrl != null && long.TryParse(trackIdFromUrl, out var trackId))
             {
-                case "Авторизоваться": 
-                  break;
-                // send custom keyboard
-                case "/photo":
-                    await bot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
+              var yandexApi = Container.GetService<YandexApi>();
+              var track = yandexApi.GetTrack(trackId.ToString());
 
-                    const string file = @"Files/tux.png";
+              var streamTrack = yandexApi.ExtractStreamTrack(track);
+              await bot.SendTextMessageAsync(
+                message.Chat.Id,
+                $"Я пришлю вам трек {track.Title} в ближайшее время");
 
-                    var fileName = file.Split(Path.DirectorySeparatorChar).Last();
+              streamTrack.Complated += (o, track1) =>
+              {
+                var inputStream = new InputOnlineFile(streamTrack);
 
-                    using (var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    {
-                        await bot.SendPhotoAsync(
-                            message.Chat.Id,
-                            fileStream,
-                            "Nice Picture");
-                    }
-                    break;
-
-                // request location or contact
-                case "/request":
-                    var RequestReplyKeyboard = new ReplyKeyboardMarkup(new[]
-                    {
-                        KeyboardButton.WithRequestLocation("Location"),
-                        KeyboardButton.WithRequestContact("Contact"),
-                    });
-
-                    await bot.SendTextMessageAsync(
-                        message.Chat.Id,
-                        "Who or Where are you?",
-                        replyMarkup: RequestReplyKeyboard);
-                    break;
-
-//                default:
-//                    const string usage = @"
-//Usage:
-///menu   - меню
-///keyboard - send custom keyboard
-///request  - request location or contact";
-
-//                    await bot.SendTextMessageAsync(
-//                        message.Chat.Id,
-//                        usage,
-//                        replyMarkup: new ReplyKeyboardRemove());
-//                    break;
+                bot.SendAudioAsync(
+                  message.Chat.Id,
+                  inputStream, track.Title).GetAwaiter().GetResult();
+                Log.Information($"[SEND] {track.Title} {uriResult}");
+              };
             }
+          }
+        }
+      }
     }
-    
+
 
     public void Stop()
     {
