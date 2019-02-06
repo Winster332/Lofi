@@ -3,7 +3,7 @@ using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
-  public class Cover
+  public class YandexCover
   {
     public string Type { get; set; }
     public string Prefix { get; set; }
@@ -12,9 +12,9 @@ namespace Yandex.Music
     public string Dir { get; set; }
     public string Version { get; set; }
 
-    public static Cover FromJson(JToken jCover)
+    public static YandexCover FromJson(JToken jCover)
     {
-      var cover = new Cover
+      var cover = new YandexCover
       {
         Type = jCover.GetString("type"),
         Prefix = jCover.GetString("prefix"),

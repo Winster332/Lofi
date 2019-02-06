@@ -6,9 +6,9 @@ using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
-  public class Album : ISearchable
+  public class YandexAlbum : IYandexSearchable
   {
-    public List<Artist> Artists { get; set; }
+    public List<YandexArtist> Artists { get; set; }
     public bool? Available { get; set; }
     public bool? AvailableForPremiumUsers { get; set; }
     public string CoverUri { get; set; }
@@ -22,13 +22,13 @@ namespace Yandex.Music
     public string Year { get; set; }
     public List<string> Bests { get; set; }
     public string Type { get; set; }
-    public List<List<Track>> Volumes { get; set; }
+    public List<List<YandexTrack>> Volumes { get; set; }
 
-    public static Album FromJson(JToken jAlbum)
+    public static YandexAlbum FromJson(JToken jAlbum)
     {
-      var album = new Album
+      var album = new YandexAlbum
       {
-        Artists = Artist.FromJsonArray(jAlbum["artists"].ToObject<JArray>()),
+        Artists = YandexArtist.FromJsonArray(jAlbum["artists"].ToObject<JArray>()),
         Available = jAlbum.GetBool("available"),
         AvailableForPremiumUsers = jAlbum.GetBool("availableForPremiumUsers"),
         CoverUri = jAlbum.GetString("coverUri"),
@@ -56,8 +56,8 @@ namespace Yandex.Music
           if (fieldVolumes != null)
           {
             var jVolumes = fieldVolumes.ToObject<JArray>();
-            var tracks = Track.FromJsonArray(jVolumes);
-            album.Volumes = new List<List<Track>> {tracks};
+            var tracks = YandexTrack.FromJsonArray(jVolumes);
+            album.Volumes = new List<List<YandexTrack>> {tracks};
           }
           else
           {
@@ -75,7 +75,7 @@ namespace Yandex.Music
       return album;
     }
 
-    public static List<Album> FromJsonArray(JArray jAlbums)
+    public static List<YandexAlbum> FromJsonArray(JArray jAlbums)
     {
       return jAlbums.Select(FromJson).ToList();
     }

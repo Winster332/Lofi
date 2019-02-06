@@ -1,6 +1,6 @@
 ﻿namespace Yandex.Music
 {
-  public class TrackDownloadInfo
+  public class YandexTrackDownloadInfo
   {
     public string Host { get; set; }
     public string Path { get; set; }

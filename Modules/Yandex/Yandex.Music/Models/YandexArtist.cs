@@ -5,31 +5,31 @@ using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
-  public class Artist : ISearchable
+  public class YandexArtist : IYandexSearchable
   {
     public string Id { get;set; }
     public string Name { get; set; }
     public bool? Various { get; set; }
     public bool? Composer { get; set; }
-    public Cover Cover { get; set; }
+    public YandexCover Cover { get; set; }
     public string[] Genres { get; set; }
 
-    public static Artist FromJson(JToken jArtist)
+    public static YandexArtist FromJson(JToken jArtist)
     {
-      var artist = new Artist
+      var artist = new YandexArtist
       {
         Id = jArtist.GetString("id"),
         Name = jArtist.GetString("name"),
         Various = jArtist.GetBool("various"),
         Composer = jArtist.GetBool("composer"),
-        Cover = jArtist.ContainField("cover") ? Cover.FromJson(jArtist["cover"]) : null,
+        Cover = jArtist.ContainField("cover") ? YandexCover.FromJson(jArtist["cover"]) : null,
         Genres = new string[] { }
       };
 
       return artist;
     }
 
-    public static List<Artist> FromJsonArray(JArray jArtists)
+    public static List<YandexArtist> FromJsonArray(JArray jArtists)
     {
       return jArtists.Select(FromJson).ToList();
     }

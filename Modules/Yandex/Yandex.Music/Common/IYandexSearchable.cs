@@ -1,6 +1,6 @@
 ﻿namespace Yandex.Music
 {
-  public interface ISearchable
+  public interface IYandexSearchable
   {
   }
 }

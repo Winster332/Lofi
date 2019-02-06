@@ -20,7 +20,7 @@ namespace Lofty.Modules.BddTests
     {
       Fixture = fixture;
 
-      Api = new LofiYandexMusicApi();
+      Api = new YandexMusicApi();
       
       if (output != null)
       {

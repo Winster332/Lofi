@@ -3,7 +3,7 @@ using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
-  public class Owner
+  public class YandexOwner
   {
     public string Login { get; set; }
     public string Name { get; set; }
@@ -11,9 +11,9 @@ namespace Yandex.Music
     public string Uid { get; set; }
     public bool? Verified { get; set; }
 
-    public static Owner FromJson(JToken jOwner)
+    public static YandexOwner FromJson(JToken jOwner)
     {
-      var owner = new Owner
+      var owner = new YandexOwner
       {
         Login = jOwner.GetString("login"),
         Name = jOwner.GetString("name"),

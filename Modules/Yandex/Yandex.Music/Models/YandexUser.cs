@@ -5,7 +5,7 @@ using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
-  public class YandexUser : ISearchable
+  public class YandexUser : IYandexSearchable
   {
     public string Uid { get; set; }
     public string Login { get; set; }

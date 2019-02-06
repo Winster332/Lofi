@@ -18,7 +18,7 @@ namespace Yandex.Music.Bot.Extensions
 
     public static void UseYandexMusicApi(this ServiceCollection services)
     {
-      services.AddTransient<YandexApi, LofiYandexMusicApi>();
+      services.AddTransient<YandexApi, YandexMusicApi>();
     }
 
     public static void UseRouter(this ServiceCollection services)

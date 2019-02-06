@@ -16,7 +16,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
   {
     public const string FolderData = "data";
     public readonly string PathFile;
-    public Track Track { get; set; }
+    public YandexTrack Track { get; set; }
     
     public ExtractingTrackTest(LofiTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
     {

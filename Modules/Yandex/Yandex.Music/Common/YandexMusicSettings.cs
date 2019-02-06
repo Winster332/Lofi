@@ -45,7 +45,7 @@ namespace Yandex.Music
                 $"https://music.yandex.ru/handlers/playlist.jsx?owner=yamusic-daily&kinds=57151881&light=true&madeFor=&lang=ru&external-domain=music.yandex.ru&overembed=false&ncrnd=0.9083773647705418");
         }
 
-        public Uri GetSearchURL(string searchText, SearchType searchType, int page)
+        public Uri GetSearchURL(string searchText, YandexSearchType searchType, int page)
         {
             var searchTypeAsString = searchType.ToString();
             var urlSearch = new StringBuilder();
@@ -67,7 +67,7 @@ namespace Yandex.Music
             return new Uri($"http://storage.music.yandex.ru/get/{storageDir}/2.xml");
         }
         
-        public Uri GetURLDownloadTrack(Track track, TrackDownloadInfo downloadInfo)
+        public Uri GetURLDownloadTrack(YandexTrack track, YandexTrackDownloadInfo downloadInfo)
         {
             var key = ""; //downloadInfo.Path.Substring(1, downloadInfo.Path.Length - 1) + downloadInfo.S;
 

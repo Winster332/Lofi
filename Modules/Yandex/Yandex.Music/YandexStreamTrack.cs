@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Yandex.Music
 {
-  public class StreamTrack : MemoryStream
+  public class YandexStreamTrack : MemoryStream
   {
     public Uri Url { get; set; }
     public int? TrackSize { get; set; }
-    public event EventHandler<StreamTrack> Complated;
+    public event EventHandler<YandexStreamTrack> Complated;
     public Task Task { get; set; }
     
-    private StreamTrack()
+    private YandexStreamTrack()
     {
     }
 
@@ -36,9 +36,9 @@ namespace Yandex.Music
       Close();
     }
 
-    public static StreamTrack Open(Uri trackUrl, int? sizeTrack)
+    public static YandexStreamTrack Open(Uri trackUrl, int? sizeTrack)
     {
-      var streamTrack = new StreamTrack
+      var streamTrack = new YandexStreamTrack
       {
         Position = 0,
         TrackSize = sizeTrack,

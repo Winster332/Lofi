@@ -4,19 +4,19 @@ using Yandex.Music.Extensions;
 
 namespace Yandex.Music
 {
-  public class Major
+  public class YandexMajor
   {
     public string Id { get; set; }
     public string Name { get; set; }
 
-    public static Major FromJson(JToken jMajor)
+    public static YandexMajor FromJson(JToken jMajor)
     {
       if (!jMajor.Contains("major"))
       {
         return null;
       }
 
-      var majot = new Major
+      var majot = new YandexMajor
       {
         Id = jMajor.GetString("id"),
         Name = jMajor.GetString("name")

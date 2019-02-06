@@ -1,6 +1,6 @@
 ﻿namespace Yandex.Music
 {
-  public enum SearchType
+  public enum YandexSearchType
   {
     Tracks,
     Artists,

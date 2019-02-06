@@ -18,7 +18,7 @@ namespace Yandex.Music
     /// </summary>
     /// <param name="userId">User id</param>
     /// <returns></returns>
-    List<Track> GetListFavorites(string userId = null);
+    List<YandexTrack> GetListFavorites(string userId = null);
     
     /// <summary>
     /// Save track to file
@@ -26,21 +26,21 @@ namespace Yandex.Music
     /// <param name="track">Track instance</param>
     /// <param name="filder">Folder for save file</param>
     /// <returns></returns>
-    bool ExtractTrackToFile(Track track, string filder = "data");
+    bool ExtractTrackToFile(YandexTrack track, string filder = "data");
     
     /// <summary>
     /// Return track stram
     /// </summary>
     /// <param name="track">Track instance</param>
     /// <returns></returns>
-    StreamTrack ExtractStreamTrack(Track track);
+    YandexStreamTrack ExtractStreamTrack(YandexTrack track);
     
     /// <summary>
     /// Return bytes from track
     /// </summary>
     /// <param name="track">Track instance</param>
     /// <returns></returns>
-    byte[] ExtractDataTrack(Track track);
+    byte[] ExtractDataTrack(YandexTrack track);
 
     /// <summary>
     /// Search by tracks
@@ -48,7 +48,7 @@ namespace Yandex.Music
     /// <param name="trackName">Track name</param>
     /// <param name="pageNumber">Page number</param>
     /// <returns></returns>
-    List<Track> SearchTrack(string trackName, int pageNumber = 0);
+    List<YandexTrack> SearchTrack(string trackName, int pageNumber = 0);
 
     /// <summary>
     /// Search by artists
@@ -56,7 +56,7 @@ namespace Yandex.Music
     /// <param name="artistName">Artist name</param>
     /// <param name="pageNumber">Page number</param>
     /// <returns></returns>
-    List<Artist> SearchArtist(string artistName, int pageNumber = 0);
+    List<YandexArtist> SearchArtist(string artistName, int pageNumber = 0);
 
     /// <summary>
     /// Search by albums
@@ -64,7 +64,7 @@ namespace Yandex.Music
     /// <param name="albumName">Album name</param>
     /// <param name="pageNumber">Page number</param>
     /// <returns></returns>
-    List<Album> SearchAlbums(string albumName, int pageNumber = 0);
+    List<YandexAlbum> SearchAlbums(string albumName, int pageNumber = 0);
 
     /// <summary>
     /// Search by playlists
@@ -72,7 +72,7 @@ namespace Yandex.Music
     /// <param name="playlistName">Playlist name</param>
     /// <param name="pageNumber">Page number</param>
     /// <returns></returns>
-    List<Playlist> SearchPlaylist(string playlistName, int pageNumber = 0);
+    List<YandexPlaylist> SearchPlaylist(string playlistName, int pageNumber = 0);
 
     /// <summary>
     /// Search by users
@@ -86,21 +86,35 @@ namespace Yandex.Music
     /// Return best playlist of day
     /// </summary>
     /// <returns></returns>
-    Playlist GetPlaylistOfDay();
+    YandexPlaylist GetPlaylistOfDay();
 
     /// <summary>
     /// Return play list deja vu
     /// </summary>
     /// <returns></returns>
-    Playlist GetPlaylistDejaVu();
+    YandexPlaylist GetPlaylistDejaVu();
 
     /// <summary>
     /// Return album from albumId
     /// </summary>
     /// <param name="albumId">Id album</param>
     /// <returns></returns>
-    Album GetAlbum(string albumId);
+    YandexAlbum GetAlbum(string albumId);
 
-    Track GetTrack(string trackId);
+    /// <summary>
+    /// Return track from trackId
+    /// </summary>
+    /// <param name="trackId">Id track</param>
+    /// <returns></returns>
+    YandexTrack GetTrack(string trackId);
+
+    /// <summary>
+    /// Search by yandex music
+    /// </summary>
+    /// <param name="searchText">Search text</param>
+    /// <param name="searchType">Search type</param>
+    /// <param name="page">Page number</param>
+    /// <returns></returns>
+    List<IYandexSearchable> Search(string searchText, YandexSearchType searchType, int page = 0);
   }
 }
