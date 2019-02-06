@@ -1,23 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Policy;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MihaZupan;
 using PeterKottas.DotNetCore.WindowsService.Base;
 using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
-using Telegram.Bot.Types.ReplyMarkups;
 using Yandex.Music.Bot.Extensions;
 using Yandex.Music.Extensions;
 
@@ -42,10 +34,8 @@ namespace Yandex.Music.Bot
       Log.Logger = new LoggerConfiguration()
         .ReadFrom.Configuration(Configuration)
         .CreateLogger();
-
       
       Log.Information($"Service {Name} v.{Version} initialized");
-
       Log.Information($"Name: {Name}");
       Log.Information($"Title: {Title}");
       Log.Information($"Description: {Description}");
@@ -68,31 +58,8 @@ namespace Yandex.Music.Bot
       bot.OnMessage += BotOnMessageReceived;
       bot.StartReceiving(Array.Empty<UpdateType>());
       
-      bot.OnCallbackQuery += async (object sc, Telegram.Bot.Args.CallbackQueryEventArgs ev) =>
-      {
-        var message = ev.CallbackQuery.Message;
-        if (ev.CallbackQuery.Data == "callback1")
-        {
-          // сюда то что тебе нужно сделать при нажатии на первую кнопку 
-          Console.WriteLine("123");
-
-          await bot.SendTextMessageAsync(
-            message.Chat.Id,
-            "Спасибо что выбрали one");
-        }
-        else
-        if (ev.CallbackQuery.Data == "callback2")
-        {
-          // сюда то что нужно сделать при нажатии на вторую кнопку
-          await bot.SendTextMessageAsync(
-            message.Chat.Id,
-            "Спасибо что выбрали two");
-        }
-      };
-      
       Log.Information($"Start listening for @{me.Username}");
       Log.Information($"Bot {me.Username} started");
-      
     }
 
     private async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
@@ -149,7 +116,6 @@ namespace Yandex.Music.Bot
         }
       }
     }
-
 
     public void Stop()
     {
