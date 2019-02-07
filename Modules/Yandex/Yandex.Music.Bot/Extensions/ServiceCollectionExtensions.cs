@@ -1,7 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MihaZupan;
 using Telegram.Bot;
+using Yandex.Music.Bot.Commands;
+using Yandex.Music.Bot.Common;
 
 namespace Yandex.Music.Bot.Extensions
 {
@@ -23,19 +29,20 @@ namespace Yandex.Music.Bot.Extensions
 
     public static void UseRouter(this ServiceCollection services)
     {
-//      var router = new CommandRouter();
-//      var assembly = Assembly.GetEntryAssembly();
-//      var list = assembly.GetExportedTypes().Where(t => t.BaseType == typeof(Command)).ToList();
+      var router = new Router();
+      var assembly = Assembly.GetEntryAssembly();
+      var list = assembly.GetExportedTypes().Where(t => t.BaseType == typeof(Command)).ToList();
 
-//      list.ForEach(c =>
-//      {
-//        var name = c.Name.Replace("Command", "");
-        
-//        services.AddTransient(c);
-//        router._commands.Add(name, c);
-//      });
+      list.ForEach(c =>
+      {
+        var name = c.Name.Replace("Command", "").ToLower();
+        var commandInstance = (Command) Activator.CreateInstance(c);
+        commandInstance.CommandName = name;
+
+        router.UseCommand(name, commandInstance);
+      });
       
-//      services.AddSingleton(router);
+      services.AddSingleton(router);
     }
   }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PeterKottas.DotNetCore.WindowsService.Base;
@@ -8,8 +9,10 @@ using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+using Yandex.Music.Bot.Common;
 using Yandex.Music.Bot.Extensions;
 using Yandex.Music.Extensions;
 
@@ -88,31 +91,32 @@ namespace Yandex.Music.Bot
         if (Uri.TryCreate(message.Text, UriKind.Absolute, out var uriResult)
             && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
         {
-          if (uriResult.DnsSafeHost == "music.yandex.ru" && uriResult.Segments.Contains("track/"))
+          if (uriResult.DnsSafeHost == "music.yandex.ru")
           {
-            var trackIdFromUrl = uriResult.Segments.LastOrDefault();
+            var yandexApi = Container.GetService<YandexApi>();
 
-            if (trackIdFromUrl != null && long.TryParse(trackIdFromUrl, out var trackId))
-            {
-              var yandexApi = Container.GetService<YandexApi>();
-              var track = yandexApi.GetTrack(trackId.ToString());
-
-              var streamTrack = yandexApi.ExtractStreamTrack(track);
-              await bot.SendTextMessageAsync(
-                message.Chat.Id,
-                $"Я пришлю вам трек {track.Title} в ближайшее время");
-
-              streamTrack.Complated += (o, track1) =>
-              {
-                var inputStream = new InputOnlineFile(streamTrack);
-
-                bot.SendAudioAsync(
-                  message.Chat.Id,
-                  inputStream, track.Title).GetAwaiter().GetResult();
-                Log.Information($"[SEND] {track.Title} {uriResult}");
-              };
-            }
+            var router = Container.GetService<Router>();
+            router.Create(yandexApi, bot).Push(uriResult, message);
           }
+          else
+          {
+            var text = "Вы дали мне адрес, который не указывает на конкретный трек";
+            bot.SendTextMessageAsync(
+              message.Chat.Id,
+              text).GetAwaiter().GetResult();
+
+            Log.Information($"[SEND] {text}");
+          }
+        }
+        else
+        {
+          var text = "Это не относится к адресу трека на Yandex.Music";
+          
+          bot.SendTextMessageAsync(
+            message.Chat.Id,
+            text).GetAwaiter().GetResult();
+          
+          Log.Information($"[SEND] {text}");
         }
       }
     }
