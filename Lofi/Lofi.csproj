@@ -3,8 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Modules\SoundCloud\SoundCloud.Music\SoundCloud.Music.csproj" />
-    <ProjectReference Include="..\Modules\Spotify\Spotify.Music\Spotify.Music.csproj" />
     <ProjectReference Include="..\Modules\Telegram\Telegram.Music\Telegram.Music.csproj" />
     <ProjectReference Include="..\Modules\VK\VK.Music\VK.Music.csproj" />
     <ProjectReference Include="..\Modules\Yandex\Yandex.Music\Yandex.Music.csproj" />

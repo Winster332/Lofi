@@ -15,7 +15,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
     [Fact, YandexTrait(TraitGroup.Authorize)]
     public void Authorize_ValidData_GenerateTrue()
     {
-      var isAuthorized = Api.Authorize("Winster332", "Stas32MP3tanki");
+      var isAuthorized = Api.Authorize("Winster332", "123");
       
       isAuthorized.Should().BeTrue();
     }
@@ -23,7 +23,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
     [Fact, YandexTrait(TraitGroup.Authorize)]
     public void Authorize_InvalidData_GenerateFalse()
     {
-      var isAuthorized = Api.Authorize("Winster332-test", "Stas32MP3tanki");
+      var isAuthorized = Api.Authorize("Winster332-test", "123");
       
       isAuthorized.Should().BeFalse();
     }

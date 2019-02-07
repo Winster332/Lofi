@@ -24,8 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lofy.Modules.Core\Lofy.Modules.Core.csproj" />
-    <ProjectReference Include="..\SoundCloud\SoundCloud.Music\SoundCloud.Music.csproj" />
-    <ProjectReference Include="..\Spotify\Spotify.Music\Spotify.Music.csproj" />
     <ProjectReference Include="..\Telegram\Telegram.Music\Telegram.Music.csproj" />
     <ProjectReference Include="..\VK\VK.Music\VK.Music.csproj" />
     <ProjectReference Include="..\Yandex\Yandex.Music\Yandex.Music.csproj" />

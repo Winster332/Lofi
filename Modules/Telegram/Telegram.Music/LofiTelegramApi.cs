@@ -21,7 +21,7 @@ namespace Telegram.Music
     public LofiTelegramApi()
     {
       Store = new FileSessionStore();
-      Client = new TelegramClient(614523, "584d46ed77ea333d584fa0744feaf4dd", Store);
+      Client = new TelegramClient(123, "123", Store);
       
       Session = Store.Load("session");
     }

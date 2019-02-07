@@ -23,7 +23,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
       if (!Directory.Exists(FolderData))
         Directory.CreateDirectory(FolderData);
       
-      Api.Authorize("Winster332", "Stas32MP3tanki");
+      Api.Authorize("Winster332", "123");
       Track = Api.GetListFavorites().FirstOrDefault();
       PathFile = $"{FolderData}/{Track.Title}.mp3";
     }
