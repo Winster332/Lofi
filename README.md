@@ -8,7 +8,5 @@ Lofi - music services integrator
 Lofi is divided into modules with which it integrates.
 
 * Yandex.Music
-* SoundCloud
 * VK(music)
 * Telegram(music)
-* Spotify
