@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Runtime.InteropServices.ComTypes;
 
 namespace Yandex.Music
@@ -116,5 +117,12 @@ namespace Yandex.Music
     /// <param name="page">Page number</param>
     /// <returns></returns>
     List<IYandexSearchable> Search(string searchText, YandexSearchType searchType, int page = 0);
+
+    /// <summary>
+    /// Use target proxy
+    /// </summary>
+    /// <param name="proxy">Proxy</param>
+    /// <returns></returns>
+    YandexApi UseWebProxy(IWebProxy proxy);
   }
 }

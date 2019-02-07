@@ -6,3 +6,4 @@ Yandex.Music.Bot - music bot for yandex music
 ### Functions
 * Get tracks by track link
 * Get tracks by album link
+* Find track by name

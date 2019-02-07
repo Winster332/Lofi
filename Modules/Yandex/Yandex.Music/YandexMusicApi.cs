@@ -35,6 +35,7 @@ namespace Yandex.Music
     private CookieContainer _cookies;
     
     public IConfigurationRoot Configuration { get; set; }
+    public IWebProxy WebProxy { get; set; }
 
     public YandexMusicApi()
     {
@@ -51,6 +52,13 @@ namespace Yandex.Music
       Log.Information($"Title: {Title}");
       Log.Information($"Description: {Description}");
       Log.Information($"Version: {Version}");
+    }
+
+    public YandexApi UseWebProxy(IWebProxy proxy)
+    {
+      WebProxy = proxy;
+
+      return this;
     }
 
     public bool Authorize(string login, string password)
@@ -372,6 +380,8 @@ namespace Yandex.Music
     protected virtual HttpWebRequest GetRequest(Uri uri, string method)
     {
       var request = HttpWebRequest.CreateHttp(uri);
+      request.Proxy = WebProxy;
+      
       request.Method = method;
       if (_cookies == null)
       {

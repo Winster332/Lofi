@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -58,67 +59,20 @@ namespace Yandex.Music.Bot
       var me = bot.GetMeAsync().Result;
       Console.Title = me.Username;
 
-      bot.OnMessage += BotOnMessageReceived;
+      bot.OnMessage += Container
+        .GetService<Router>()
+        // "47.251.50.29", 3128
+        // https://hidemyna.me/en/proxy-list/?type=s#list - list web proxy
+        .Create(Container.GetService<YandexApi>()
+         // .UseWebProxy(new WebProxy("45.32.24.242", 3128))
+          , Container.GetService<TelegramBotClient>())
+        .BotOnMessageReceived;
       bot.StartReceiving(Array.Empty<UpdateType>());
       
       Log.Information($"Start listening for @{me.Username}");
       Log.Information($"Bot {me.Username} started");
     }
 
-    private async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
-    {
-      var message = messageEventArgs.Message;
-
-      if (message.Type != MessageType.Text)
-      {
-        return;
-      }
-
-      var command = message.Text.Split(" ").First();
-
-      Log.Information($"GET[{message.From.Username}] > {message.Text}");
-
-      var bot = Container.GetService<TelegramBotClient>();
-
-      if (command == "/start")
-      {
-        await bot.SendTextMessageAsync(
-          message.Chat.Id,
-          $"Привет {message.From.FirstName} {message.From.LastName}. Я бот который работает с Яндекс.Музыкой. Просто пришли мне ссылку на песню, и я скину тебе её");
-      }
-      else
-      {
-        if (Uri.TryCreate(message.Text, UriKind.Absolute, out var uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
-        {
-          if (uriResult.DnsSafeHost == "music.yandex.ru")
-          {
-            var yandexApi = Container.GetService<YandexApi>();
-
-            var router = Container.GetService<Router>();
-            router.Create(yandexApi, bot).Push(uriResult, message);
-          }
-          else
-          {
-            var text = "Вы дали мне адрес, который не указывает на яндекс трек, альбом, плейлист, артиста или пользователя";
-            bot.SendTextMessageAsync(
-              message.Chat.Id,
-              text).GetAwaiter().GetResult();
-
-            Log.Information($"[SEND] {text}");
-          }
-        }
-        else
-        {
-          Log.Information($"[SEARCH] search by {message.Text}");
-          
-          var yandexApi = Container.GetService<YandexApi>();
-
-          var router = Container.GetService<Router>();
-          router.Create(yandexApi, bot).Push(uriResult, message);
-        }
-      }
-    }
 
     public void Stop()
     {
