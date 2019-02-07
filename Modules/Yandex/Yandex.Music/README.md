@@ -13,7 +13,6 @@ Usage
  
  yandexApi.Authorize("login", "password");
  // place code here
-})
 ```
 
 This library provides following functions:
