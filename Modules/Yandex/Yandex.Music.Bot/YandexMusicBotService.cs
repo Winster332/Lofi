@@ -49,7 +49,7 @@ namespace Yandex.Music.Bot
 
       services.UseTelegramBot(Configuration);
       services.UseYandexMusicApi();
-      services.UseRouter();
+      services.UseRouter(defaultCommand: "SearchTracks");
 
       Container = services.BuildServiceProvider();
 
@@ -100,7 +100,7 @@ namespace Yandex.Music.Bot
           }
           else
           {
-            var text = "Вы дали мне адрес, который не указывает на конкретный трек";
+            var text = "Вы дали мне адрес, который не указывает на яндекс трек, альбом, плейлист, артиста или пользователя";
             bot.SendTextMessageAsync(
               message.Chat.Id,
               text).GetAwaiter().GetResult();
@@ -110,13 +110,12 @@ namespace Yandex.Music.Bot
         }
         else
         {
-          var text = "Это не относится к адресу трека на Yandex.Music";
+          Log.Information($"[SEARCH] search by {message.Text}");
           
-          bot.SendTextMessageAsync(
-            message.Chat.Id,
-            text).GetAwaiter().GetResult();
-          
-          Log.Information($"[SEND] {text}");
+          var yandexApi = Container.GetService<YandexApi>();
+
+          var router = Container.GetService<Router>();
+          router.Create(yandexApi, bot).Push(uriResult, message);
         }
       }
     }

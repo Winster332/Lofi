@@ -27,9 +27,9 @@ namespace Yandex.Music.Bot.Extensions
       services.AddTransient<YandexApi, YandexMusicApi>();
     }
 
-    public static void UseRouter(this ServiceCollection services)
+    public static void UseRouter(this ServiceCollection services, string defaultCommand)
     {
-      var router = new Router();
+      var router = new Router {DefaultCommandName = defaultCommand};
       var assembly = Assembly.GetEntryAssembly();
       var list = assembly.GetExportedTypes().Where(t => t.BaseType == typeof(Command)).ToList();
 

@@ -12,6 +12,7 @@ namespace Yandex.Music.Bot.Common
     private Dictionary<string, Command> _commands { get; set; }
     private YandexApi _yandexApi;
     private ITelegramBotClient _bot;
+    public string DefaultCommandName { get; set; }
 
     public Router()
     {
@@ -34,21 +35,31 @@ namespace Yandex.Music.Bot.Common
 
     public void Push(Uri uri, Message message)
     {
+      var isPushDefault = true;
+      
       foreach (var keyValuePair in _commands)
       {
         var command = keyValuePair.Value;
 
-        if (uri.Segments.Contains($"{command.CommandName}/"))
+        if (uri != null && uri.Segments.Contains($"{command.CommandName}/"))
         {
           var trackIdFromUrl = uri.Segments.LastOrDefault();
 
           if (trackIdFromUrl != null && long.TryParse(trackIdFromUrl, out var lastId))
           {
             command.Perform(_yandexApi, _bot, message, lastId.ToString()).GetAwaiter().GetResult();
+            isPushDefault = false;
           }
           
           break;
         }
+      }
+
+      if (isPushDefault)
+      {
+        var command = _commands[DefaultCommandName.ToLower()];
+        
+        command.Perform(_yandexApi, _bot, message, null).GetAwaiter().GetResult();
       }
     }
   }
