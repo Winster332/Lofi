@@ -14,7 +14,7 @@ namespace Lofty.Modules.BddTests.Tests.Yandex
   {
     public GetTracksTests(LofiTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
     {
-      Api.Authorize("Winster332", "123");
+      Api.Authorize("login", "123");
     }
 
     [Fact, YandexTrait(TraitGroup.GetTracks)]

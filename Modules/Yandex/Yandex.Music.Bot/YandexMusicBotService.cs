@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PeterKottas.DotNetCore.WindowsService.Base;
 using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using Serilog;
 using Telegram.Bot;
-using Telegram.Bot.Args;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
 using Yandex.Music.Bot.Common;
 using Yandex.Music.Bot.Extensions;
 using Yandex.Music.Extensions;
@@ -61,8 +55,6 @@ namespace Yandex.Music.Bot
 
       bot.OnMessage += Container
         .GetService<Router>()
-        // "47.251.50.29", 3128
-        // https://hidemyna.me/en/proxy-list/?type=s#list - list web proxy
         .Create(Container.GetService<YandexApi>()
          // .UseWebProxy(new WebProxy("45.32.24.242", 3128))
           , Container.GetService<TelegramBotClient>())

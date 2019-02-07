@@ -32,6 +32,7 @@ This library provides following functions:
 
 - Authorize
 - SearchUsers
+- UseProxy
 
 #### Music
 
@@ -40,6 +41,7 @@ This library provides following functions:
 - ExtractStreamTrack
 - ExtractDataTrack
 - SearchTrack
+- GetTrack
 
 #### Playlist
 
@@ -49,4 +51,3 @@ This library provides following functions:
 - SearchArtist
 - SearchAlbums
 - GetAlbum
-- GetTrack
