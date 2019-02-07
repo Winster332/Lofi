@@ -18,4 +18,5 @@ Yandex.Music.Bot - https://github.com/Winster332/Lofi/tree/master/Modules/Yandex
 ## Dependency
 
 * Telegram.Bot https://github.com/TelegramBots/Telegram.Bot
+* Telegram https://telegram.org/
 * Yandex.Music https://music.yandex.ru/
