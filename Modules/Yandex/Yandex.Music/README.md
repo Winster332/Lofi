@@ -13,6 +13,17 @@ Usage
  
  yandexApi.Authorize("login", "password");
  // place code here
+ 
+ var track = Api.SearchTrack("I Don't Care").First();
+ var streamTrack = yandexApi.ExtractStreamTrack(track);
+ var artistName = track.Artists.FirstOrDefault()?.Name;
+
+ streamTrack.Complated += (o, track1) =>
+ {
+    var fileName = $"{artistName} - {track.Title}";
+    
+    streamTrack.SaveToFile(fileName);
+ };
 ```
 
 This library provides following functions:
@@ -38,3 +49,4 @@ This library provides following functions:
 - SearchArtist
 - SearchAlbums
 - GetAlbum
+- GetTrack
