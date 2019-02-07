@@ -1,12 +1,16 @@
-Lofi - music services integrator
+Lofi - music telegram bot
 ======
 
 [![Build Status](https://travis-ci.com/Winster332/Lofi.svg?token=9RFGGw1id2424svMxqyZ&branch=master)](https://travis-ci.com/Winster332/Lofi)
 
-### Modules
+This bot uses Yandex.Music for telegram bot
 
-Lofi is divided into modules with which it integrates.
+Yandex.Music.API - https://github.com/Winster332/Lofi/tree/master/Modules/Yandex/Yandex.Music
 
-* Yandex.Music
-* VK(music)
-* Telegram(music)
+Yandex.Music.Bot - https://github.com/Winster332/Lofi/tree/master/Modules/Yandex/Yandex.Music.Bot
+
+## Screens
+
+![N|Solid](https://github.com/Winster332/Lofi/blob/master/Imgs/Untitled.png)
+
+![N|Solid](https://github.com/Winster332/Lofi/blob/master/Imgs/Untitled1.png)
