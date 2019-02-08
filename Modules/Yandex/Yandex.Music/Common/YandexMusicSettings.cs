@@ -18,7 +18,7 @@ namespace Yandex.Music
         public Uri GetAlbumURL(string albumId)
         {
             return new Uri(
-                $"https://music.yandex.ru/handlers/album.jsx?album={albumId}&lang=ru&external-domain=music.yandex.ru&overembed=false&ncrnd=0.7993721501733155");
+                $"https://music.yandex.ru/handlers/album.jsx?album={albumId}&lang=ru&external-domain=music.yandex.ru&overembed=false");
         }
       
         public Uri GetTrackURL(string trackId)

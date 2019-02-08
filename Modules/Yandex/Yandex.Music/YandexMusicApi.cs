@@ -380,8 +380,12 @@ namespace Yandex.Music
     protected virtual HttpWebRequest GetRequest(Uri uri, string method)
     {
       var request = HttpWebRequest.CreateHttp(uri);
-      request.Proxy = WebProxy;
       
+      if (WebProxy != null)
+      {
+        request.Proxy = WebProxy;
+      }
+
       request.Method = method;
       if (_cookies == null)
       {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -42,9 +43,15 @@ namespace Yandex.Music.Bot.Common
       
       foreach (var keyValuePair in _commands)
       {
+        if (uri == null)
+          continue;
+        if (uri.Segments.Length - 2 <= 0)
+          continue;
+        
         var command = keyValuePair.Value;
+        var segmentName = uri.Segments[uri.Segments.Length - 2];
 
-        if (uri != null && uri.Segments.Contains($"{command.CommandName}/"))
+        if (uri != null && segmentName == $"{command.CommandName}/")
         {
           var trackIdFromUrl = uri.Segments.LastOrDefault();
 
@@ -65,53 +72,56 @@ namespace Yandex.Music.Bot.Common
         command.Perform(_yandexApi, _bot, message, null).GetAwaiter().GetResult();
       }
     }
-    
+
     public async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
     {
-      var message = messageEventArgs.Message;
-
-      if (message.Type != MessageType.Text)
+      new Thread(() =>
       {
-        return;
-      }
+        var message = messageEventArgs.Message;
 
-      var command = message.Text.Split(" ").First();
-
-      Log.Information($"GET[{message.From.Username}] > {message.Text}");
-
-      if (command == "/start")
-      {
-        await _bot.SendTextMessageAsync(
-          message.Chat.Id,
-          $"Привет {message.From.FirstName} {message.From.LastName}. Я бот который работает с Яндекс.Музыкой. Просто пришли мне ссылку на песню, и я скину тебе её");
-      }
-      else
-      {
-        if (Uri.TryCreate(message.Text, UriKind.Absolute, out var uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+        if (message.Type != MessageType.Text)
         {
-          if (uriResult.DnsSafeHost == "music.yandex.ru")
-          {
-            Push(uriResult, message);
-          }
-          else
-          {
-            var text = "Вы дали мне адрес, который не указывает на яндекс трек, альбом, плейлист, артиста или пользователя";
-            _bot.SendTextMessageAsync(
-              message.Chat.Id,
-              text).GetAwaiter().GetResult();
+          return;
+        }
 
-            Log.Information($"[SEND] {text}");
-          }
+        var command = message.Text.Split(" ").First();
+
+        Log.Information($"GET[{message.From.Username}] > {message.Text}");
+
+        if (command == "/start")
+        {
+          _bot.SendTextMessageAsync(
+            message.Chat.Id,
+            $"Привет {message.From.FirstName} {message.From.LastName}. Я бот который работает с Яндекс.Музыкой. Просто пришли мне ссылку на песню, и я скину тебе её").GetAwaiter().GetResult();
         }
         else
         {
-          Log.Information($"[SEARCH] search by {message.Text}");
-          
-          Push(uriResult, message);
+          if (Uri.TryCreate(message.Text, UriKind.Absolute, out var uriResult)
+              && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+          {
+            if (uriResult.DnsSafeHost == "music.yandex.ru")
+            {
+              Push(uriResult, message);
+            }
+            else
+            {
+              var text =
+                "Вы дали мне адрес, который не указывает на яндекс трек, альбом, плейлист, артиста или пользователя";
+              _bot.SendTextMessageAsync(
+                message.Chat.Id,
+                text).GetAwaiter().GetResult();
+
+              Log.Information($"[SEND] {text}");
+            }
+          }
+          else
+          {
+            Log.Information($"[SEARCH] search by {message.Text}");
+
+            Push(uriResult, message);
+          }
         }
-      }
+      }).Start();
     }
-    
   }
 }
