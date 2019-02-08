@@ -14,3 +14,9 @@ Yandex.Music.Bot - https://github.com/Winster332/Lofi/tree/master/Modules/Yandex
 ![N|Solid](https://github.com/Winster332/Lofi/blob/master/Imgs/Untitled.png)
 
 ![N|Solid](https://github.com/Winster332/Lofi/blob/master/Imgs/Untitled1.png)
+
+## Dependency
+
+* Telegram.Bot https://github.com/TelegramBots/Telegram.Bot
+* Telegram https://telegram.org/
+* Yandex.Music https://music.yandex.ru/
