@@ -11,22 +11,22 @@ namespace Yandex.Music.Bot.Commands
 {
   public class SearchTracksCommand : Command
   {
-    public override async Task Perform(YandexApi yandexApi, ITelegramBotClient bot, Message message, string id)
+    public override async Task Perform(string id)
     {
       try
       {
-        var tracks = yandexApi.SearchTrack(message.Text);
-        var infoMessage = await bot.SendTextMessageAsync(
-          message.Chat.Id,
-          $"Я пришлю вам 5 треков по запросу \"{message.Text}\", в ближайшее время");
+        var tracks = Session.YandexApi.SearchTrack(Session.Message.Text);
+        var infoMessage = await Session.Bot.SendTextMessageAsync(
+          Session.Message.Chat.Id,
+          $"Я пришлю вам 5 треков по запросу \"{Session.Message.Text}\", в ближайшее время");
 
         for (var i = 0; i < 5; i++)
         {
           if (i > tracks.Count)
             break;
 
-          var track = yandexApi.GetTrack(tracks[i].Id);
-          var streamTrack = yandexApi.ExtractStreamTrack(track);
+          var track = Session.YandexApi.GetTrack(tracks[i].Id);
+          var streamTrack = Session.YandexApi.ExtractStreamTrack(track);
           var artistName = track.Artists.FirstOrDefault()?.Name;
 
           Log.Information($"[SEND] {track.Title}");
@@ -35,8 +35,8 @@ namespace Yandex.Music.Bot.Commands
 
           var inputStream = new InputOnlineFile(streamTrack, $"{artistName} - {track.Title}");
 
-          bot.SendAudioAsync(
-            message.Chat.Id,
+          Session.Bot.SendAudioAsync(
+            Session.Message.Chat.Id,
             inputStream, disableNotification: true).GetAwaiter().GetResult();
 
           Log.Information($"[SUCCESS] {track.Title}");

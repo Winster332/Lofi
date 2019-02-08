@@ -9,25 +9,25 @@ namespace Yandex.Music.Bot.Commands
 {
   public class TrackCommand : Command
   {
-    public override async Task Perform(YandexApi yandexApi, ITelegramBotClient bot, Message message, string trackId)
+    public override async Task Perform(string trackId)
     {
-      var track = yandexApi.GetTrack(trackId);
-      var streamTrack = yandexApi.ExtractStreamTrack(track);
+      var track = Session.YandexApi.GetTrack(trackId);
+      var streamTrack = Session.YandexApi.ExtractStreamTrack(track);
 
       var artistName = track.Artists.FirstOrDefault()?.Name;
-      var infoMessage = await bot.SendTextMessageAsync(
-        message.Chat.Id,
+      var infoMessage = await Session.Bot.SendTextMessageAsync(
+        Session.Message.Chat.Id,
         $"Я пришлю вам трек {track.Title} в ближайшее время");
 
       streamTrack.Complated += (o, track1) =>
       {
         var inputStream = new InputOnlineFile(streamTrack, $"{artistName} - {track.Title}");
 
-        bot.SendAudioAsync(
-          message.Chat.Id,
+        Session.Bot.SendAudioAsync(
+          Session.Message.Chat.Id,
           inputStream).GetAwaiter().GetResult();
         
-        bot.DeleteMessageAsync(message.Chat.Id, infoMessage.MessageId);
+        Session.Bot.DeleteMessageAsync(Session.Message.Chat.Id, infoMessage.MessageId);
       };
       
       Log.Information($"[SEND] {track.Title}");

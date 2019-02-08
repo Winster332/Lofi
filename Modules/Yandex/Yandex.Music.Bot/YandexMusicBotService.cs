@@ -44,11 +44,14 @@ namespace Yandex.Music.Bot
 
       services.UseTelegramBot(Configuration);
       services.UseYandexMusicApi();
+      services.AddTransient<ISession, Session>();
       services.UseRouter(defaultCommand: "SearchTracks");
 
       Container = services.BuildServiceProvider();
 
       var bot = Container.GetService<TelegramBotClient>();
+      Container.GetService<YandexApi>().Authorize(Configuration.GetSection("Yandex").GetValue<string>("Username"),
+        Configuration.GetSection("Yandex").GetValue<string>("Password"));
       
       var me = bot.GetMeAsync().Result;
       Console.Title = me.Username;

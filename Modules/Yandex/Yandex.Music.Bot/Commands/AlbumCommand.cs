@@ -12,14 +12,14 @@ namespace Yandex.Music.Bot.Commands
 {
   public class AlbumCommand : Command
   {
-    public override async Task Perform(YandexApi yandexApi, ITelegramBotClient bot, Message message, string albumId)
+    public override async Task Perform(string albumId)
     {
-      var album = yandexApi.GetAlbum(albumId);
+      var album = Session.YandexApi.GetAlbum(albumId);
       var artistName = album.Artists.First().Name;
       var tracks = album.Volumes.First();
 
-      var infoMessage = bot.SendTextMessageAsync(
-        message.Chat.Id,
+      var infoMessage = Session.Bot.SendTextMessageAsync(
+        Session.Message.Chat.Id,
         $"В ближайшее время я пришлю вам {tracks.Count} треков из альбома {album.Title} этого артиста: {artistName}");
 
       var trackFailed = new List<YandexTrack>();
@@ -28,14 +28,14 @@ namespace Yandex.Music.Bot.Commands
       {
         try
         {
-          var streamTrack = yandexApi.ExtractStreamTrack(track);
+          var streamTrack = Session.YandexApi.ExtractStreamTrack(track);
 
           streamTrack.Complated += (o, track1) =>
           {
             var inputStream = new InputOnlineFile(streamTrack, $"{artistName} - {track.Title}");
 
-            bot.SendAudioAsync(
-              message.Chat.Id,
+            Session.Bot.SendAudioAsync(
+              Session.Message.Chat.Id,
               inputStream).GetAwaiter().GetResult();
 
             Log.Information($"[SUCCESS] {track.Title}");
@@ -54,14 +54,14 @@ namespace Yandex.Music.Bot.Commands
       Log.Information($"Failed tracks: {trackFailed.Count}");
       trackFailed.ForEach(track =>
       {
-        var streamTrack = yandexApi.ExtractStreamTrack(track);
+        var streamTrack = Session.YandexApi.ExtractStreamTrack(track);
 
         streamTrack.Complated += (o, track1) =>
         {
           var inputStream = new InputOnlineFile(streamTrack, track.Title);
 
-          bot.SendAudioAsync(
-            message.Chat.Id,
+          Session.Bot.SendAudioAsync(
+            Session.Message.Chat.Id,
             inputStream).GetAwaiter().GetResult();
 
         };

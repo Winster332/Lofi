@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -17,12 +18,18 @@ namespace Yandex.Music.Bot.Common
     private YandexApi _yandexApi;
     private ITelegramBotClient _bot;
     public string DefaultCommandName { get; set; }
+    private IServiceProvider _container;
 
     public Router()
     {
       _commands = new Dictionary<string, Command>();
     }
-    
+
+    public void SetContainer(IServiceProvider container)
+    {
+      _container = container;
+    }
+
     public Router UseCommand(string name, Command command)
     {
       _commands.Add(name, command);
@@ -57,7 +64,8 @@ namespace Yandex.Music.Bot.Common
 
           if (trackIdFromUrl != null && long.TryParse(trackIdFromUrl, out var lastId))
           {
-            command.Perform(_yandexApi, _bot, message, lastId.ToString()).GetAwaiter().GetResult();
+            command.Session = _container.GetService<ISession>().Open(message);
+            command.Perform(lastId.ToString()).GetAwaiter().GetResult();
             isPushDefault = false;
           }
           
@@ -68,8 +76,8 @@ namespace Yandex.Music.Bot.Common
       if (isPushDefault)
       {
         var command = _commands[DefaultCommandName.ToLower()];
-        
-        command.Perform(_yandexApi, _bot, message, null).GetAwaiter().GetResult();
+        command.Session = _container.GetService<ISession>().Open(message);
+        command.Perform(null).GetAwaiter().GetResult();
       }
     }
 

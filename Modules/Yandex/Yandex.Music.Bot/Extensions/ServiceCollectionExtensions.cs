@@ -23,7 +23,7 @@ namespace Yandex.Music.Bot.Extensions
 
     public static void UseYandexMusicApi(this ServiceCollection services)
     {
-      services.AddTransient<YandexApi, YandexMusicApi>();
+      services.AddSingleton<YandexApi, YandexMusicApi>();
     }
 
     public static void UseRouter(this ServiceCollection services, string defaultCommand)
@@ -41,7 +41,11 @@ namespace Yandex.Music.Bot.Extensions
         router.UseCommand(name, commandInstance);
       });
       
-      services.AddSingleton(router);
+      services.AddSingleton(f =>
+      {
+        router.SetContainer(f);
+        return router;
+      });
     }
   }
 }
