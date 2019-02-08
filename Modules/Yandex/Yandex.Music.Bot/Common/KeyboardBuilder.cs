@@ -1,4 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Serilog;
+using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Yandex.Music.Bot.Common
@@ -20,6 +24,46 @@ namespace Yandex.Music.Bot.Common
       {
         Keyboard = buttons
       };
+
+      return replyKeyboardMarkup;
+    }
+    
+    public static InlineKeyboardMarkup CreateSearchKeyboardMarkup()
+    {
+      var replyKeyboardMarkup = new InlineKeyboardMarkup(new[]
+      {
+        new[]
+        {
+          InlineKeyboardButton.WithCallbackData("Треки", "track.search"),
+          InlineKeyboardButton.WithCallbackData("Исполнители", "artist.search"),
+          InlineKeyboardButton.WithCallbackData("Альбомы", "album.search")
+        },
+        new[]
+        {
+          InlineKeyboardButton.WithCallbackData("Плейлисты", "playlist.search"),
+          InlineKeyboardButton.WithCallbackData("Пользователи", "user.search"),
+          InlineKeyboardButton.WithCallbackData("Вернуться домой", "back.search")
+        }
+      });
+
+      return replyKeyboardMarkup;
+    }
+    
+    public static InlineKeyboardMarkup CreateStartKeyboardMarkup()
+    {
+      var replyKeyboardMarkup = new InlineKeyboardMarkup(new[]
+      {
+        new[]
+        {
+          InlineKeyboardButton.WithCallbackData("Поиск", "home.search"),
+          InlineKeyboardButton.WithCallbackData("Новые релизы", "home.newReleases")
+        },
+        new[]
+        {
+          InlineKeyboardButton.WithCallbackData("Жанры", "home.genres"),
+          InlineKeyboardButton.WithCallbackData("Чарт", "home.chart")
+        }
+      });
 
       return replyKeyboardMarkup;
     }

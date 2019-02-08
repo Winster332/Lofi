@@ -8,6 +8,7 @@ using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using Yandex.Music.Bot.Commands;
 
 namespace Yandex.Music.Bot.Common
@@ -100,7 +101,8 @@ namespace Yandex.Music.Bot.Common
         {
           _bot.SendTextMessageAsync(
             message.Chat.Id,
-            $"Привет {message.From.FirstName} {message.From.LastName}. Я бот который работает с Яндекс.Музыкой. Просто пришли мне ссылку на песню, и я скину тебе её").GetAwaiter().GetResult();
+            $"Привет {message.From.FirstName} {message.From.LastName}. Я бот который работает с Яндекс.Музыкой, и позволяет тебе пользоваться возможностями Яндекс.Музыки без рекламы в треках. Просто пришли мне ссылку на песню, и я скину тебе её",
+            replyMarkup: KeyboardBuilder.CreateStartKeyboardMarkup()).GetAwaiter().GetResult();
         }
         else
         {
@@ -124,9 +126,9 @@ namespace Yandex.Music.Bot.Common
           }
           else
           {
-            Log.Information($"[SEARCH] search by {message.Text}");
+//            Log.Information($"[SEARCH] search by {message.Text}");
 
-            Push(uriResult, message);
+//            Push(uriResult, message);
           }
         }
       }).Start();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +10,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Yandex.Music.Bot.Common;
 using Yandex.Music.Bot.Extensions;
+using Yandex.Music.Bot.Views;
 using Yandex.Music.Extensions;
 
 namespace Yandex.Music.Bot
@@ -48,26 +50,23 @@ namespace Yandex.Music.Bot
       services.UseRouter(defaultCommand: "SearchTracks");
 
       Container = services.BuildServiceProvider();
-
-      var bot = Container.GetService<TelegramBotClient>();
-      Container.GetService<YandexApi>().Authorize(Configuration.GetSection("Yandex").GetValue<string>("Username"),
-        Configuration.GetSection("Yandex").GetValue<string>("Password"));
+      var bot = Container.InitialTelegramBotClient(Configuration);
       
-      var me = bot.GetMeAsync().Result;
-      Console.Title = me.Username;
+      var me = bot.TestConnection();
+      if (me == null)
+      {
+        Console.ReadKey();
+        return;
+      }
 
-      bot.OnMessage += Container
-        .GetService<Router>()
-        .Create(Container.GetService<YandexApi>()
-         // .UseWebProxy(new WebProxy("45.32.24.242", 3128))
-          , Container.GetService<TelegramBotClient>())
-        .BotOnMessageReceived;
+      bot.AddRouting(Container);
+      bot.AddViews(Container);
+      
       bot.StartReceiving(Array.Empty<UpdateType>());
       
       Log.Information($"Start listening for @{me.Username}");
       Log.Information($"Bot {me.Username} started");
     }
-
 
     public void Stop()
     {
